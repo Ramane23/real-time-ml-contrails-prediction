@@ -1,0 +1,27 @@
+# write a docker compose with 3 services
+# - services/flight_producer.py
+# - services/flight_with_weather.py
+# - services/flights_to_feature_store.py
+# make sure that I can connect to the redpanda_broker
+name: historical-feature-pipeline
+
+networks:
+  redpanda_network:
+    external: true
+
+volumes:
+  flight-producer-volume:
+
+services:
+  
+  flight_producer:
+    container_name: flight_producer
+    build:
+      context: ../services/flights_producer
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+    env_file:
+      - ../services/flights_producer/setup_historical_config.sh
+    restart: on-failure
