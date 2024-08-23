@@ -6,8 +6,16 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
-opensky-api = {path = "opensky-api/python"}
+python = ">=3.10 <=3.12.5"
+pydantic = ">=2.7,<2.8"
+python-dotenv = "^1.0.1"
+requests = "^2.32.3"
+pydantic-settings = ">=2.3,<2.4"
+loguru = "^0.7.2"
+quixstreams = "^2.9.0"
+ruff = "^0.6.1"
+prettyprinter = "^0.18.0"
+pandas = "^2.2.2"
 
 
 [build-system]

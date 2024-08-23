@@ -1,0 +1,72 @@
+version: "4.27.0"  # Specify the version of docker to use.
+
+name: redpanda-quickstart-one-broker  # Name of the Docker Compose application.
+
+networks:
+  redpanda_network: 
+    name: redpanda_network # Define a custom network named 'redpanda_network'.
+    driver: bridge  # Use the 'bridge' network driver, which creates an isolated network.
+    external: true  # Allow the network to be used by other Docker Compose files.
+
+volumes:
+  redpanda-0: null  # Define a volume named 'redpanda-0'. The 'null' value indicates it's created but not initialized with data.
+
+services:
+  redpanda-0:  # Define a service named 'redpanda-0'.
+    command:
+      - redpanda  # Start the Redpanda process.
+      - start  # Start the Redpanda service.
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092  # Kafka address bindings.
+      # Address the broker advertises to clients that connect to the Kafka API.
+      # Use the internal addresses to connect to the Redpanda brokers'
+      # from inside the same Docker network.
+      # Use the external addresses to connect to the Redpanda brokers'
+      # from outside the Docker network.
+      - --advertise-kafka-addr internal://redpanda-0:9092,external://localhost:19092  # Advertised Kafka addresses.
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082  # Pandaproxy address bindings.
+      # Address the broker advertises to clients that connect to the HTTP Proxy.
+      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://localhost:18082  # Advertised Pandaproxy addresses.
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081  # Schema Registry address bindings.
+      # Redpanda brokers use the RPC API to communicate with each other internally.
+      - --rpc-addr redpanda-0:33145  # Internal RPC address.
+      - --advertise-rpc-addr redpanda-0:33145  # Advertised RPC address.
+      # Mode dev-container uses well-known configuration properties for development in containers.
+      - --mode dev-container  # Use development mode configuration.
+      # Tells Seastar (the framework Redpanda uses under the hood) to use 1 core on the system.
+      - --smp 1  # Limit Redpanda to use 1 CPU core.
+      - --default-log-level=info  # Set the default log level to 'info'.
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.9  # Docker image to use for the Redpanda service.
+    container_name: redpanda-0  # Name the container 'redpanda-0'.
+    volumes:
+      - redpanda-0:/var/lib/redpanda/data  # Mount the volume 'redpanda-0' to the container's data directory.
+    networks:
+      - redpanda_network  # Connect this service to the 'redpanda_network'.
+    ports:
+      - 18081:18081  # Map port 18081 on the host to port 18081 on the container (Schema Registry).
+      - 18082:18082  # Map port 18082 on the host to port 18082 on the container (Pandaproxy).
+      - 19092:19092  # Map port 19092 on the host to port 19092 on the container (Kafka).
+      - 19644:9644  # Map port 19644 on the host to port 9644 on the container (Admin API).
+
+  console:  # Define a service named 'console'.
+    container_name: redpanda-console  # Name the container 'redpanda-console'.
+    image: docker.redpanda.com/redpandadata/console:v2.6.1  # Docker image to use for the console service.
+    networks:
+      - redpanda_network  # Connect this service to the 'redpanda_network'.
+    entrypoint: /bin/sh  # Override the default entrypoint to use the shell.
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'  # Execute shell commands to write the configuration file and start the console application.
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml  # Environment variable for the configuration file path.
+      CONSOLE_CONFIG_FILE: |  # Environment variable containing the console configuration.
+        kafka:
+          brokers: ["redpanda-0:9092"]  # Kafka broker address.
+          schemaRegistry:
+            enabled: true  # Enable the Schema Registry.
+            urls: ["http://redpanda-0:8081"]  # Schema Registry URL.
+        redpanda:
+          adminApi:
+            enabled: true  # Enable the Admin API.
+            urls: ["http://redpanda-0:9644"]  # Admin API URL.
+    ports:
+      - 8080:8080  # Map port 8080 on the host to port 8080 on the container (Console).
+    depends_on:
+      - redpanda-0  # Ensure the 'redpanda-0' service starts before this service.
