@@ -1,18 +1,14 @@
 from pydantic_settings import BaseSettings
+from typing import Optional
 from pydantic import field_validator
-# import dotenv
-
-# Load the environment variables from the .env file
-# dotenv.load_dotenv(dotenv.find_dotenv())
-
 
 # Define a class to hold the configuration settings
 class Config(BaseSettings):
     aviation_edge_api_key: str
-    kafka_broker_address: str
+    kafka_broker_address: Optional[str] 
     kafka_topic_name: str
     live_or_historical: str
-    days : float
+    days : Optional[float] = 1
 
     # Validate the value of the live_or_historical setting
     @field_validator("live_or_historical")

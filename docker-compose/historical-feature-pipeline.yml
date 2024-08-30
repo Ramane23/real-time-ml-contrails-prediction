@@ -14,8 +14,8 @@ volumes:
 
 services:
   
-  flight_producer:
-    container_name: flight_producer
+  flights_producer:
+    container_name: historical_flights_producer
     build:
       context: ../services/flights_producer
     networks:
@@ -24,4 +24,16 @@ services:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092
     env_file:
       - ../services/flights_producer/setup_historical_config.sh
+    restart: on-failure
+
+  flights_with_weather:
+    container_name: historical_flights_with_weather
+    build:
+      context: ../services/flights_with_weather
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+    env_file:
+      - ../services/flights_with_weather/setup_historical_config.sh
     restart: on-failure

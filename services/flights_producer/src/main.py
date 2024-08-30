@@ -54,31 +54,33 @@ def produce_flights(
 
             # Get the flights from the Aviation Edge API
             flights: List[Flight] = aviation_edge_api.get_flights()
-            # breakpoint()
-            # Challenge 1: Send a heartbeat to Prometheus to check the service is alive
-            # Challenge 2: Send an event with trade latency to Prometheus, to monitor the trade latency
-            # breakpoint()
-            # producing the live data to the kafka topic
-            for flight in flights:
-                # Serialize an event using the defined Topic
-                message = topic.serialize(
-                    key=str(flight.flight_id),  # Convert flight_id to string
-                    value=flight.model_dump(),
-                )
-
-                # Produce a message into the Kafka topic
-                producer.produce(
-                    topic=topic.name,
-                    value=message.value,
-                    key=message.key,
-                )
-
-                logger.debug(f"{flight.model_dump()}")
+            if flights != {'error': 'No Record Found', 'success': False}:
                 # breakpoint()
-            logger.info(f"Produced {len(flights)} flights to Kafka topic {topic.name}")
-            # Wait for 1 minute before fetching the next batch of flights
-            time.sleep(60)  # 1 minute = 60 seconds
+                # Challenge 1: Send a heartbeat to Prometheus to check the service is alive
+                # Challenge 2: Send an event with trade latency to Prometheus, to monitor the trade latency
+                # breakpoint()
+                # producing the live data to the kafka topic
+                for flight in flights:
+                    # Serialize an event using the defined Topic
+                    message = topic.serialize(
+                        key=str(flight.flight_id),  # Convert flight_id to string
+                        value=flight.model_dump(),
+                    )
 
+                    # Produce a message into the Kafka topic
+                    producer.produce(
+                        topic=topic.name,
+                        value=message.value,
+                        key=message.key,
+                    )
+
+                    logger.debug(f"{flight.model_dump()}")
+                    # breakpoint()
+                logger.info(f"Produced {len(flights)} flights to Kafka topic {topic.name}")
+                # Wait for 1 minute before fetching the next batch of flights
+                time.sleep(60)  # 1 minute = 60 seconds
+            else:
+                break
 
 if __name__ == "__main__":
     logger.debug("Configuration:")

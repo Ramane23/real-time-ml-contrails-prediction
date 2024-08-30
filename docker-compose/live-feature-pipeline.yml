@@ -14,8 +14,8 @@ volumes:
 
 services:
   
-  flight_producer:
-    container_name: flight_producer
+  flights_producer:
+    container_name: live_flights_producer
     build:
       context: ../services/flights_producer
     networks:
@@ -26,4 +26,14 @@ services:
       - ../services/flights_producer/setup_live_config.sh
     restart: always
     
-  
+  flights_with_weather:
+    container_name: live_flights_with_weather
+    build:
+      context: ../services/flights_with_weather
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+    env_file:
+      - ../services/flights_with_weather/setup_live_config.sh
+    restart: always

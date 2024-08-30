@@ -11,7 +11,6 @@ class Flight(BaseModel):
     airline_iata_code: str
     airline_icao_code: str
     altitude: float
-    flight_level: str
     arrival_airport_iata: str
     arrival_airport_icao: str
     arrival_city: str
@@ -29,12 +28,6 @@ class Flight(BaseModel):
     latitude: float
     longitude: float
     vertical_speed: float
-    departure_country: str
-    arrival_country: str
-    route: str
-    departure_airport_coords : dict
-    arrival_airport_coords : dict
-    
 
 
 class FlightWeather(BaseModel):
@@ -65,11 +58,6 @@ class FlightWeather(BaseModel):
     latitude: float
     longitude: float
     vertical_speed: float
-    departure_country: str
-    arrival_country: str
-    route: str
-    departure_airport_coords : dict
-    arrival_airport_coords : dict
     temperature_C: float
     pressure_hPa: float
     wind_speed_u_ms: float
@@ -80,8 +68,6 @@ class FlightWeather(BaseModel):
     high_cloud_cover_octas: float
     specific_humidity_kg_kg: float
     prob_contrails_percent: float
-    global_radiation_W_m2:  float
-    
 
     def to_dict(self):
         """
@@ -111,11 +97,6 @@ class FlightWeather(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "vertical_speed": self.vertical_speed,
-            "departure_country": self.departure_country,
-            "arrival_country": self.arrival_country,
-            "route": self.route,
-            "departure_airport_coords" : self.departure_airport_coords,
-            "arrival_airport_coords" : self.arrival_airport_coords,
             "temperature_C": self.temperature_C,
             "pressure_hPa": self.pressure_hPa,
             "wind_speed_u_ms": self.wind_speed_u_ms,
@@ -125,6 +106,5 @@ class FlightWeather(BaseModel):
             "total_cloud_cover_octas": self.total_cloud_cover_octas,
             "high_cloud_cover_octas": self.high_cloud_cover_octas,
             "specific_humidity_kg_kg": self.specific_humidity_kg_kg,
-            "prob_contrails_percent": self.prob_contrails_percent,
-            "global_radiation_W_m2": self.global_radiation_W_m2,
+            "prob_contrails_percent": self.prob_contrails_percent
         }
