@@ -16,6 +16,16 @@ xarray = "^2024.7.0"
 setuptools = "^73.0.1"
 pygrib = "^2.1.6"
 geopy = "^2.4.1"
+pycontrails = "^0.53.1"
+openmeteo-requests = "^1.3.0"
+requests-cache = "^1.2.1"
+retry-requests = "^2.0.0"
+numpy = "^2.1.0"
+pandas = "^2.2.2"
+netcdf4 = "^1.7.1.post2"
+siphon = "^0.9"
+h5netcdf = "^1.3.0"
+scipy = "^1.14.1"
 
 
 [build-system]

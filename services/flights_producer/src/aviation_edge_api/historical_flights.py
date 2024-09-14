@@ -6,7 +6,7 @@ from datetime import datetime
 from loguru import logger
 
 from src.aviation_edge_api.flight import Flight
-from src.path import get_airports_path
+from src.path import get_airports_path, get_airlines_path , get_aircrafts_path
 
 
 class historicalFlights:
@@ -19,6 +19,8 @@ class historicalFlights:
     def __init__(self) -> None:
         self.is_done: bool = False
         self.airports_database = self._airports_database_to_dataframe()
+        self.airlines_database = self._airlines_database_to_dataframe()
+        self.aircrafts_database = self._aircrafts_database_to_dataframe()
         self.days: float  = config.days
         # the start date should be the exact time we started fetching data in historical mode
         # Set the start date to the exact time of instantiation
@@ -45,58 +47,81 @@ class historicalFlights:
             List[Flight]: Live flights data as Flight objects
         """
         #Define a list of European countries
-        european_countries = [
-                "Albania",
-                "Andorra",
-                "Armenia",
-                "Austria",
-                "Azerbaijan",
-                "Belarus",
-                "Belgium",
-                "Bosnia and Herzegovina",
-                "Bulgaria",
-                "Croatia",
-                "Cyprus",
-                "Czech Republic",
-                "Denmark",
-                "Estonia",
-                "Finland",
-                "France",
-                "Georgia",
-                "Germany",
-                "Greece",
-                "Hungary",
-                "Iceland",
-                "Ireland",
-                "Italy",
-                "Kazakhstan",
-                "Kosovo",
-                "Latvia",
-                "Liechtenstein",
-                "Lithuania",
-                "Luxembourg",
-                "Malta",
-                "Moldova",
-                "Monaco",
-                "Montenegro",
-                "Netherlands",
-                "North Macedonia",
-                "Norway",
-                "Poland",
-                "Portugal",
-                "Romania",
-                "Russia",
-                "San Marino",
-                "Serbia",
-                "Slovakia",
-                "Slovenia",
-                "Spain",
-                "Sweden",
-                "Switzerland",
-                "Turkey",
-                "Ukraine",
-                "United Kingdom",
-                "Vatican City"
+        #european_countries = [
+                # "Albania",
+                # "Andorra",
+                # "Armenia",
+                # "Austria",
+                # "Azerbaijan",
+                # "Belarus",
+                # "Belgium",
+                # "Bosnia and Herzegovina",
+                # "Bulgaria",
+                # "Croatia",
+                # "Cyprus",
+                # "Czech Republic",
+                # "Denmark",
+                # "Estonia",
+                # "Finland",
+                # "France",
+                # "Georgia",
+                # "Germany",
+                # "Greece",
+                # "Hungary",
+                # "Iceland",
+                # "Ireland",
+                # "Italy",
+                # "Kazakhstan",
+                # "Kosovo",
+                # "Latvia",
+                # "Liechtenstein",
+                # "Lithuania",
+                # "Luxembourg",
+                # "Malta",
+                # "Moldova",
+                # "Monaco",
+                # "Montenegro",
+                # "Netherlands",
+                # "North Macedonia",
+                # "Norway",
+                # "Poland",
+                # "Portugal",
+                # "Romania",
+                # "Russia",
+                # "San Marino",
+                # "Serbia",
+                # "Slovakia",
+                # "Slovenia",
+                # "Spain",
+                # "Sweden",
+                # "Switzerland",
+                # "Turkey",
+                # "Ukraine",
+                # "United Kingdom",
+                # "Vatican City"
+        # ]
+        #20 busiest European routes according WorldAtlas and Wikipedia
+        busiest_european_routes_cities = [
+            "Toulouse - Paris",
+            "Madrid - Barcelona",
+            "Nice - Paris",
+            "Catania - Rome",
+            "Berlin - Munich",
+            "Oslo - Trondheim",
+            "Frankfurt - Berlin",
+            "Oslo - Bergen",
+            "Munich - Hamburg",
+            "London - Dublin",
+            "Barcelona - Palma de Mallorca",
+            "Paris - Marseille",
+            "Stockholm - Gothenburg",
+            "Athens - Thessaloniki",
+            "Vienna - Zurich",
+            "Milan - Rome",
+            "Helsinki - Oulu",
+            "Madrid - Malaga",
+            "London - Amsterdam",
+            "Paris - Lyon"
         ]
         # Make a request to the API
         data = requests.get(self.url)
@@ -146,21 +171,38 @@ class historicalFlights:
                     elif flight["flight_status"] == "landed":
                         continue
                     else:
+                        #Add the aircraft true airspeed to the flight dictionary
+                        flight['true_airspeed_ms'] = self.true_airspeed(flight['horizontal_speed'], flight['vertical_speed'])
+                        #breakpoint()
+                        #Add the aircraft mass MTOW to the flight dictionary
+                        flight['aircraft_mtow_kg'] = self.get_aircraft_weight_mtow(flight['aircraft_icao_code'])
+                        #Add the aircraft mass MALW to the flight dictionary
+                        flight['aircraft_malw_kg'] = self.get_aircraft_weight_malw(flight['aircraft_icao_code'])
+                        #Add the aircraft engine class to the flight dictionary
+                        flight['aircraft_engine_class'] = self.get_aircraft_engine_class(flight['aircraft_icao_code'])
+                        #Add the number of engines to the flight dictionary
+                        flight['aircraft_num_engines'] = self.get_aircraft_num_engines(flight['aircraft_icao_code'])
+                        #Add the airline name to the flight dictionary
+                        flight['airline_name'] = self.get_airline_name_by_code(
+                            flight["airline_iata_code"],
+                            flight["airline_icao_code"],
+                        )
                         #Add flight level to the flight dictionary
                         flight['flight_level'] = f"FL{self.altitude_to_flight_level(flight['altitude'])}"
                         #Add the departures and arrivals coordinates to the flight dictionary
-                        flight['departure_airport_coords'] = self.get_airport_coordinates_by_code(
+                        departure_coords, arrival_coords = self.get_airport_coordinates_by_code(
                             flight["departure_airport_icao"],
                             flight["arrival_airport_icao"],
                             flight["departure_airport_iata"],
                             flight["arrival_airport_iata"],
-                        )[0]
-                        flight['arrival_airport_coords'] = self.get_airport_coordinates_by_code(
-                            flight["departure_airport_icao"],
-                            flight["arrival_airport_icao"],
-                            flight["departure_airport_iata"],
-                            flight["arrival_airport_iata"],
-                        )[1]
+                        )
+                        #check if the coordinates are not None
+                        flight["departure_airport_lat"] = departure_coords['Latitude']
+                        flight["departure_airport_long"] = departure_coords['Longitude']
+                        flight["arrival_airport_lat"] = arrival_coords['Latitude']
+                        flight["arrival_airport_long"] = arrival_coords['Longitude']
+                        #breakpoint()
+                        
                         # Get the departures and arrival city names based on the ICAO and IATA codes
                         departure, arrival = self.get_city_and_country_by_code(
                             flight["departure_airport_icao"],
@@ -175,10 +217,15 @@ class historicalFlights:
                         flight["arrival_city"] = arrival['City']
                         flight["arrival_country"] = arrival['Country']
                         flight['route'] = f"{flight['departure_city']} - {flight['arrival_city']}"
-                        # Check if the departure and arrival cities are in Europe
-                        if flight["departure_country"] in european_countries and flight["arrival_country"] in european_countries:
+                        #TODO : 
+                        #1- Add aircraft mass, true airspeed and Mach number
+                        #2- Add, flight distance, load factors
+                        # Check if the route is one of the busiest European routes
+                        if flight['route'] in busiest_european_routes_cities:
                             # Convert the flight dictionary to a Flight object
+                            #breakpoint()
                             flight_obj = Flight(**flight)
+                            #breakpoint()
                             response.append(flight_obj)
                         else:
                             continue
@@ -192,6 +239,155 @@ class historicalFlights:
 
         return response
 
+    #create a function to get the aircrafts engine class from the FAA aircrafts characteristics database
+    def get_aircraft_engine_class(self, aircraft_icao_code: str) -> str:
+        """
+        Gets the aircraft's engine class (Physical_Class_Engine) from the aircrafts database based on ICAO code.
+
+        Args:
+            aircraft_icao_code (str): The ICAO code of the aircraft.
+
+        Returns:
+            str: The engine class (e.g., Jet, Turboprop, Piston). Returns None if ICAO code is not found.
+        """
+        # Ensure the database is loaded
+        if self.aircrafts_database is None:
+            self._aircrafts_database_to_dataframe()
+        
+        # Filter the DataFrame for the specified ICAO code
+        row = self.aircrafts_database[self.aircrafts_database['ICAO_Code'] == aircraft_icao_code]
+        
+        if not row.empty:
+            # Extract the engine class (Physical_Class_Engine)
+            engine_class = row['Physical_Class_Engine'].values[0]
+            return engine_class
+        else:
+            return None  # Return None if no matching ICAO code is found
+        
+    #create a function to get the aircrafts number of engines from the FAA aircrafts characteristics database
+    def get_aircraft_num_engines(
+        self, 
+        aircraft_icao_code: str
+        ) -> int:
+        """
+        Gets the number of engines (Num_Engines) from the aircrafts database based on ICAO code.
+
+        Args:
+            aircraft_icao_code (str): The ICAO code of the aircraft.
+
+        Returns:
+            int: The number of engines. Returns None if ICAO code is not found.
+        """
+        # Ensure the database is loaded
+        if self.aircrafts_database is None:
+            self._aircrafts_database_to_dataframe()
+        
+        # Filter the DataFrame for the specified ICAO code
+        row = self.aircrafts_database[self.aircrafts_database['ICAO_Code'] == aircraft_icao_code]
+        
+        if not row.empty:
+            # Extract the number of engines (Num_Engines)
+            num_engines = row['Num_Engines'].values[0]
+            return num_engines
+        else:
+            return None  # Return None if no matching ICAO code is found
+    #create a function to compute the true airspeed TAS from the ground speed and the vertical speed
+    def true_airspeed(
+        self, 
+        ground_speed: float, 
+        vertical_speed: float
+        ) -> float:
+        """
+        Compute the true airspeed (TAS) in m/s from the ground speed and vertical speed in m/s.
+        
+        Args:
+            ground_speed (float): The ground speed in meters per second (m/s).
+            vertical_speed (float): The vertical speed in meters per second (m/s).
+        
+        Returns:
+            float: The true airspeed (TAS) in meters per second (m/s).
+        """
+        # Use Pythagorean theorem to calculate the TAS
+        tas = (ground_speed**2 + vertical_speed**2) ** 0.5
+        
+        return tas
+            
+    #create a function to get the aircrafts characteristics database to pandas DataFrame
+    def _aircrafts_database_to_dataframe(self) -> None:
+        """Downloads the FAA aircrafts characteristics database and loads it into a pandas DataFrame.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        # load the FAA aircrafts characteristics database into a pandas DataFrame
+        # return the DataFrame
+        aircrafts = pd.read_excel(get_aircrafts_path())
+        #breakpoint()
+        # return the DataFrame
+        return aircrafts
+    
+    #Function to get the aircrafts weight MALW from the FAA aircrafts characteristics database
+    def get_aircraft_weight_malw(
+        self, 
+        aircraft_icao_code: str
+        ) -> float:
+        """
+        Gets the aircraft's MALW (Maximum Allowed Landing Weight) from the aircrafts database based on ICAO code.
+
+        Args:
+            aircraft_icao_code (str): The ICAO code of the aircraft.
+
+        Returns:
+            float: The MALW of the aircraft in kilograms. Returns None if ICAO code is not found.
+        """
+        # Ensure the database is loaded
+        if self.aircrafts_database is None:
+            self._aircrafts_database_to_dataframe()
+        
+        # Filter the DataFrame for the specified ICAO code
+        row = self.aircrafts_database[self.aircrafts_database['ICAO_Code'] == aircraft_icao_code]
+        
+        if not row.empty:
+            # Extract the MALW in pounds and convert to kilograms
+            malw_lb = row['MALW_lb'].values[0]
+            malw_kg = malw_lb * 0.453592  # Conversion factor from lb to kg
+            return malw_kg
+        else:
+            return None  # Return None if no matching ICAO code is found
+        
+    #Function to get the aircrafts weight MTOW from the FAA aircrafts characteristics database
+    def get_aircraft_weight_mtow(
+        self, 
+        aircraft_icao_code: str
+        ) -> float:
+        """
+        Gets the aircraft's MTOW (Maximum Takeoff Weight) in kilograms from the aircrafts database based on ICAO code.
+
+        Args:
+            aircraft_icao_code (str): The ICAO code of the aircraft.
+
+        Returns:
+            float: The MTOW of the aircraft in kilograms. Returns None if ICAO code is not found.
+        """
+        # Ensure the database is loaded
+        if self.aircrafts_database is None:
+            self._aircrafts_database_to_dataframe()
+        
+        # Filter the DataFrame for the specified ICAO code
+        row = self.aircrafts_database[self.aircrafts_database['ICAO_Code'] == aircraft_icao_code]
+        
+        if not row.empty:
+            # Extract the MTOW in pounds and convert to kilograms
+            mtow_lb = row['MTOW_lb'].values[0]
+            mtow_kg = mtow_lb * 0.453592  # Conversion factor from lb to kg
+            return mtow_kg
+        else:
+            return None  # Return None if no matching ICAO code is found
+        
+    #Function to get the airports csv database to pandas DataFrame
     def get_airport_coordinates_by_code(
         self,
         departure_airport_icao: str,
@@ -215,11 +411,10 @@ class historicalFlights:
         def get_coordinates(code: str, column: str) -> Dict[str, float]:
             result = self.airports_database[self.airports_database[column] == code]
             if not result.empty:
-                latitude = result["Latitude"].values[0]
-                longitude = result["Longitude"].values[0]
+                latitude = round(result["Latitude"].values[0],7)
+                longitude = round(result["Longitude"].values[0],7)
                 return {"Latitude": float(latitude), "Longitude": float(longitude)}
             return {"Latitude": None, "Longitude": None}
-
         # Use ICAO if available, otherwise use IATA
         departure_coords = (
             get_coordinates(departure_airport_icao, "ICAO")
@@ -271,7 +466,53 @@ class historicalFlights:
         #breakpoint()
         # return the DataFrame
         return openflights_airports
+    
+    #Function to get airlines csv database to pandas DataFrame
+    def _airlines_database_to_dataframe(self) -> None:
+        """Downloads the openflights airports database and loads it into a pandas DataFrame.
 
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        # load the openflights airports database into a pandas DataFrame
+        # return the DataFrame
+        airlines = pd.read_csv(get_airlines_path())
+        #breakpoint()
+        # return the DataFrame
+        return airlines
+    
+    #Function to get the airline name based on the ICAO and IATA codes
+    def get_airline_name_by_code(
+        self,
+        airline_iata: str = None,
+        airline_icao: str = None
+        ) -> str:
+        """
+        Retrieves the airline name using the IATA or ICAO code from the airlines database.
+
+        Args:
+            airline_iata (str, optional): The IATA code of the airline.
+            airline_icao (str, optional): The ICAO code of the airline.
+
+        Returns:
+            str: The name of the airline if found, otherwise 'Unknown'.
+        """
+        if airline_iata:
+            result = self.airlines_database[self.airlines_database["IATA"] == airline_iata]
+        elif airline_icao:
+            result = self.airlines_database[self.airlines_database["ICAO"] == airline_icao]
+        else:
+            return "Unknown"
+
+        if not result.empty:
+            return result["Name"].values[0].strip()
+        
+        return "Unknown"
+    
+    #Function to get the city and country names based on the ICAO and IATA codes
     def get_city_and_country_by_code(
         self,
         departure_airport_icao: str,

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from src.config import config
 from src.meteomatics_api.flight import Flight, FlightWeather
-from src.meteomatics_api.live_flights import AddFlightsWeather
+from src.meteomatics_api.live_weather import AddFlightsWeather
 
 
 def custom_ts_extractor(

@@ -7,6 +7,7 @@ from math import radians, degrees, sin, cos, atan2
 from geopy.distance import geodesic, distance as geodesic_distance
 from geopy import Point
 import pandas as pd
+import numpy as np
 from typing import List
 import pdb
 
@@ -64,6 +65,7 @@ class AddFlightsWeather:
                 if len(points) > 0:
                     first_time = points[0]["time"]
                     last_time = points[-1]["time"]
+                    #TODO: consider reducing the emptying time to 1 hour or 1.5 hours
                     if (last_time - first_time) >= 7200:  # 2 hours in seconds
                         Lists_unique_routes[route] = []  # Reinitialize list for that route
                         Lists_unique_weather_data[route] = []  # Reinitialize corresponding weather data
@@ -185,6 +187,7 @@ class AddFlightsWeather:
             flight['pressure_hPa'] = weather_data['data'][1]['coordinates'][0]['dates'][0]['value']
             flight['wind_speed_u_ms'] = weather_data['data'][2]['coordinates'][0]['dates'][0]['value']
             flight['wind_speed_v_ms'] = weather_data['data'][3]['coordinates'][0]['dates'][0]['value']
+            flight['wind_speed_ms'] = self.compute_wind_speed(flight['wind_speed_u_ms'], flight['wind_speed_v_ms'])
             flight['geopotential_height_m'] = weather_data['data'][4]['coordinates'][0]['dates'][0]['value']
             flight['relative_humidity_percent'] = weather_data['data'][5]['coordinates'][0]['dates'][0]['value']
             flight['total_cloud_cover_octas'] = weather_data['data'][6]['coordinates'][0]['dates'][0]['value']
@@ -192,15 +195,71 @@ class AddFlightsWeather:
             flight['specific_humidity_kg_kg'] = self.calculate_specific_humidity(flight['temperature_C'], flight['relative_humidity_percent'], flight['pressure_hPa'])
             flight['prob_contrails_percent'] = weather_data['data'][8]['coordinates'][0]['dates'][0]['value']
             flight['global_radiation_W_m2'] = weather_data['data'][9]['coordinates'][0]['dates'][0]['value']
+            flight['mach_number'] = self.compute_mach_number(flight['true_airspeed_ms'], flight['temperature_C'])
+            #breakpoint()
+            #cast the altitude, latitude and longitude to strings before creating the FlightWeather object
+            #This is necessary if we want them as primary keys in the hopsworks feature store
+            #flight['altitude'] = str(flight['altitude'])
+            flight['latitude'] = str(flight['latitude'])
+            flight['longitude'] = str(flight['longitude'])
             # Create a FlightWeather object from the dictionary
             flight_weather = FlightWeather(**flight)
         elif response.status_code == 429:
             logger.error(f" status code 429, Meteomatics API rate limit reached for flight {flight.flight_id}")
+            flight_weather = None
         else:
             logger.error(f"Failed to retrieve weather data for flight {flight.flight_id}, request status code is: {response.status_code} for the request {url}")
             flight_weather = None
         return flight_weather
+  
+    #function to get the mach number of the flight 
+    def compute_mach_number(
+        self, 
+        tas: float, 
+        temperature_c: float
+        ) -> float:
+        """
+        Computes the Mach number from the true airspeed (TAS) in m/s and temperature in Celsius.
+        
+        Args:
+            tas (float): True Airspeed (TAS) in meters per second (m/s).
+            temperature_c (float): Temperature in Celsius.
+        
+        Returns:
+            float: The Mach number.
+        """
+        # Convert temperature from Celsius to Kelvin
+        temperature_k = temperature_c + 273.15
+        
+        # Speed of sound at the given temperature
+        speed_of_sound = math.sqrt(1.4 * 287.05 * temperature_k)  # in m/s
+        
+        # Calculate the Mach number
+        mach_number = tas / speed_of_sound
+        
+        return mach_number
     
+    #function  to compute the wind speed from the U and V components
+    def compute_wind_speed(
+        self,
+        u_component: float,
+        v_component: float
+    ) -> float:
+        """
+        Computes the wind speed from the U and V components.
+        
+        Args:
+            u_component (float): The U component of the wind in m/s.
+            v_component (float): The V component of the wind in m/s.
+            
+        Returns:
+            float: The wind speed in m/s.
+        """
+        # Use the Pythagorean theorem to calculate wind speed from the U and V components
+        wind_speed = (u_component**2 + v_component**2) ** 0.5
+        return wind_speed
+
+        
     # helper Function to compute initial compass bearing between two points
     def _calculate_initial_compass_bearing(
         self,
@@ -279,8 +338,8 @@ class AddFlightsWeather:
             FlightWeather: The same flight object with enriched weather parameters.
         """
         # Get the departure and arrival airport coordinates
-        departure_coords = Point(flight.departure_airport_coords['Latitude'], flight.departure_airport_coords['Longitude'])
-        arrival_coords = Point(flight.arrival_airport_coords['Latitude'], flight.arrival_airport_coords['Longitude'])
+        departure_coords = Point(flight.departure_airport_lat, flight.departure_airport_long)
+        arrival_coords = Point(flight.arrival_airport_lat, flight.arrival_airport_long)
         #store the latitude and longitude of the flight before updating thm with the closest point ones
         flight_latitude_init = flight.latitude
         flight_longitude_init = flight.longitude
@@ -323,9 +382,9 @@ class AddFlightsWeather:
             self.time_bound_weather_data = self._update_time_bound_weather_data(flight_weather)
             # Pause for 1.2s to respect the rate limit
             sleep(1.2)
-            #reasign the initial latitude and longitude to the flight object
-            flight_weather.latitude = flight_latitude_init
-            flight_weather.longitude = flight_longitude_init
+            #reasign the initial latitude and longitude to the flight object and convert them to strings (for hopsworks feature store)
+            flight_weather.latitude = str(flight_latitude_init)
+            flight_weather.longitude = str(flight_longitude_init)
             # Append the sampled position to the sampled_flight_points list
             self.sampled_flight_points = self._update_sampled_flight_points(flight_weather)
             self.length_of_sampled_flight_points += 1
@@ -389,9 +448,9 @@ class AddFlightsWeather:
             if flight_weather is None:
                 #pdb.set_trace()  # This will pause execution and open an interactive debugger
                 logger.error(f"Failed to retrieve weather data for flight {flight.flight_id}")
-            #reasign the initial latitude and longitude to the flight object
-            flight_weather.latitude = flight_latitude_init
-            flight_weather.longitude = flight_longitude_init
+            #reasign the initial latitude and longitude to the flight object and convert them to strings (for hopsworks feature store)
+            flight_weather.latitude = str(flight_latitude_init)
+            flight_weather.longitude = str(flight_longitude_init)
             # Append the sampled position to the sampled_flight_points list
             self.sampled_flight_points = self._update_sampled_flight_points(flight_weather)
             #breakpoint()
@@ -407,11 +466,21 @@ class AddFlightsWeather:
         else: 
             #Cast the flight object to a dictionary
             flight_dict = flight.dict()
+            #breakpoint()
             #find the closest sampled flight point to the flight position
             closest_sampled_point = min(self.sampled_flight_points, key=lambda x: geodesic(x, (flight.latitude, flight.longitude)).km)
             logger.debug(f"Interpolating weather data for flight {flight.flight_id} with the closest sampled flight point {closest_sampled_point}")
             #Assign the weather data of the closest sampled point to the flight object
             flight_dict.update(self.weather_data[self.sampled_flight_points.index(closest_sampled_point)])
+            #cast the altitude, latitude and longitude to strings before creating the FlightWeather object
+            #This is necessary if we want them as primary keys in the hopsworks feature store
+            #flight_dict['altitude'] = str(flight_dict['altitude'])
+            flight_dict['latitude'] = str(flight_dict['latitude'])
+            flight_dict['longitude'] = str(flight_dict['longitude'])
+            #Add the mach number to the flightWeather object
+            flight_dict['mach_number'] = self.compute_mach_number(flight_dict["true_airspeed_ms"], flight_dict["temperature_C"])
+            #Add the wind speed to the flightWeather object
+            flight_dict['wind_speed_ms'] = self.compute_wind_speed(flight_dict["wind_speed_u_ms"], flight_dict["wind_speed_v_ms"])
             #recast the flight object to a FlightWeather object
             flight_weather = FlightWeather(**flight_dict)
             #breakpoint()
@@ -647,35 +716,41 @@ if __name__ == "__main__":
 
    # Create a Flight object
     flight = Flight(
-        aircraft_iata_code="B763",
-        aircraft_icao_code="B763",
-        airline_iata_code="5X",
-        airline_icao_code="UPS",
-        altitude=9974.58,
-        arrival_airport_iata="CGN",
-        arrival_airport_icao="EDDK",
-        arrival_city="Cologne",
-        current_flight_time=1724792828,
-        departure_airport_iata="EMA",
-        departure_airport_icao="EGNX",
-        departure_city="East Midlands",
-        direction=126,
-        flight_icao_number="UPS237",
-        flight_number="237",
-        flight_id="5X237",
-        flight_status="en-route",
-        horizontal_speed=892.664,
+        aircraft_iata_code="B77W",
+        aircraft_icao_code="B77W",
+        airline_iata_code="CX",
+        airline_icao_code="CPA",
+        airline_name="Cathay Pacific",
+        altitude=11277.6,  # Example altitude in meters
+        flight_level="FL370",
+        arrival_airport_iata="CTS",
+        arrival_airport_icao="RJCC",
+        arrival_city="Sapporo",
+        current_flight_time=1725419414,  # Unix timestamp for current flight time
+        departure_airport_iata="HKG",
+        departure_airport_icao="VHHH",
+        departure_city="Hong Kong",
+        direction=49.88,
+        flight_icao_number="CPA580",
+        flight_number="580",
+        flight_id="CX580",
+        flight_status="unknown",
+        horizontal_speed=876.672,
         isGround=False,
-        latitude=51.8126,
-        longitude=-0.5698,
+        latitude=25.9349,
+        longitude=123.039,
         vertical_speed=0,
-        departure_country="United Kingdom",
-        arrival_country="Germany",
-        departure_airport_coords={"Latitude": 52.8311004639, "Longitude": -1.32806003094},
-        arrival_airport_coords={"Latitude": 50.8658981323, "Longitude": 7.1427397728}
+        departure_country="Hong Kong",
+        arrival_country="Japan",
+        route="Hong Kong - Sapporo",
+        departure_airport_alt=53.16790008544922,
+        arrival_airport_alt=55.972599,
+        departure_airport_long=158.45399475097656,
+        arrival_airport_long=37.4146
     )
     # Call the add_weather_inputs method
-    flight_weather = live_flights_weather.get_weather_along_route(flight)
+    flight_weather = live_flights_weather.add_weather_inputs(flight)
+    #flight_weather = live_flights_weather.get_weather_along_route(flight)
     from pprint import pprint
     # Print the resulting FlightWeather object
     pprint(flight_weather)

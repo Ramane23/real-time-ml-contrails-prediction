@@ -1,27 +1,148 @@
-import os
 from typing import List, Optional, Tuple, Dict, Any
 import time
 from loguru import logger
 import pandas as pd
 import hopsworks
-
+from hsfs.feature_store import FeatureStore
+from hsfs.feature_group import FeatureGroup
 from hsfs.feature_view import FeatureView
-from src.hopsworks.hopsworks_flights_writer import hopsworks_flights_writer
 
+
+# This class is responsible for writing the flights data to a feature group in Hopsworks
+class HopsworksFlightsWriter:
+    """_This class is responsible for writing the flights data to a feature group in Hopsworks_"""
+    
+    def __init__(
+        self,
+        feature_group_name : str, 
+        feature_group_version : int, 
+        hopsworks_project_name : str, 
+        hopsworks_api_key : str         
+        ):
+        
+        self.feature_group_name = feature_group_name
+        self.feature_group_version = feature_group_version
+        self.hopsworks_project_name = hopsworks_project_name
+        self.hopsworks_api_key = hopsworks_api_key
+    
+    #Function that gets a pointer to the feature store
+    def get_feature_store(self) -> FeatureStore:
+        """Connects to Hopsworks and returns a pointer to the feature store
+
+        Returns:
+            hsfs.feature_store.FeatureStore: pointer to the feature store
+        """
+        # Log in to Hopsworks and get the project
+        project = hopsworks.login(
+            project= self.hopsworks_project_name,
+            api_key_value= self.hopsworks_api_key
+        )
+        # Return the feature store for the project
+        return project.get_feature_store()
+    
+    #Function that gets a pointer to the feature group
+    def _get_feature_group(self) -> FeatureGroup:
+        """
+        Returns (and possibly creates) the feature group we will be writing to.
+        """
+        # Get the feature store
+        feature_store = self.get_feature_store()
+
+        feature_group = feature_store.get_or_create_feature_group(
+            name=self.feature_group_name,
+            version=self.feature_group_version,
+            description='Flights tracking data enriched with weather data',
+            primary_key=[
+                         'flight_id', 
+                         'latitude',
+                         'longitude',
+                         'current_flight_time', 
+                         'flight_level'
+                      ],
+            event_time='current_flight_time',
+            online_enabled=True, # Enable online feature serving
+        )
+
+        return feature_group
+    
+    #Function that writes the data to the feature group
+    def push_flight_data_to_feature_store(
+        self,
+        flight_data: List[dict],
+        online_or_offline: str,
+    ) -> None:
+        """
+        Pushes the given `flight_data` to the feature store, writing it to the feature group
+        with name `feature_group_name` and version `feature_group_version`.
+
+        Args:
+            feature_group_name (str): The name of the feature group to write to.
+            feature_group_version (int): The version of the feature group to write to.
+            flight_data (List[dict]): The flight data to write to the feature store.
+            online_or_offline (str): Whether we are saving the `flight_data` to the online or offline
+            feature group.
+
+        Returns:
+            None
+        """
+        # Authenticate with Hopsworks API
+        project = hopsworks.login(
+            project=self.hopsworks_project_name,
+            api_key_value=self.hopsworks_api_key,
+        )
+        #breakpoint()
+        # Get the feature store
+        feature_store = project.get_feature_store()
+
+        # Get or create the feature group we will be saving flight data to
+        flight_feature_group = feature_store.get_or_create_feature_group(
+            name=self.feature_group_name,
+            version=self.feature_group_version,
+            description='Flight tracking data enriched with weather data',
+            primary_key=[
+                         'flight_id', 
+                         'latitude',
+                         'longitude',
+                         'current_flight_time', 
+                         'flight_level'
+                      ],
+            event_time='current_flight_time',
+            online_enabled=True,
+        )
+
+        # Transform the flight data (dict) into a pandas dataframe
+        flight_data_df = pd.DataFrame(flight_data)
+
+        # Write the flight data to the feature group
+        flight_feature_group.insert(
+            flight_data_df,
+            write_options={
+                'start_offline_materialization': True # we are telling the feature store to start copying the data to the offline database 
+                if online_or_offline == 'offline' #if the online_offline argument is set to offline
+                else False
+            },
+        )
+        
+        return None
+    
+#A class that reads the flights data from a feature group in Hopsworks
 class HopsworksFlightsReader:
     """This class reads the flights data from a feature group in Hopsworks"""
     
     def __init__(
         self,
-        feature_view_name: Optional[str] = None,
-        feature_view_version: Optional[int] = None,
+        feature_store : FeatureStore,
+        feature_group_name : str, 
+        feature_group_version : int ,
+        feature_view_name : Optional[str], 
+        feature_view_version : Optional[int] 
         ):
         
-        self.feature_store = hopsworks_flights_writer.get_feature_store()
-        self.feature_group_name = hopsworks_flights_writer.feature_group_name
-        self.feature_group_version = hopsworks_flights_writer.feature_group_version
-        self.feature_view_name = feature_view_name
-        self.feature_view_version = feature_view_version
+        self.feature_store = feature_store
+        self.feature_group_name  = feature_group_name
+        self.feature_group_version  = feature_group_version
+        self.feature_view_name  = feature_view_name
+        self.feature_view_version  = feature_view_version
         
         
     #Function to get the primary keys of the feature group, which is necessary to read the data from the 
@@ -30,7 +151,7 @@ class HopsworksFlightsReader:
         self,
         flight_id: str,
         current_flight_time: int,
-        altitude: float,
+        #altitude: float,
         flight_level: str,
         latitude: float,
         longitude: float
@@ -51,11 +172,10 @@ class HopsworksFlightsReader:
         """
         primary_keys = {
             'flight_id': flight_id,
-            'current_flight_time': current_flight_time,
-            'altitude': altitude,
-            'flight_level': flight_level,
             'latitude': latitude,
-            'longitude': longitude
+            'longitude': longitude,  
+            'current_flight_time': current_flight_time,
+            'flight_level': flight_level,
         }
         
         return primary_keys
@@ -110,7 +230,7 @@ class HopsworksFlightsReader:
         self,
         flight_id: str,
         current_flight_time: int,
-        altitude: float,
+        #altitude: float,
         flight_level: str,
         latitude: float,
         longitude: float,
@@ -132,12 +252,11 @@ class HopsworksFlightsReader:
         """
         # Get the primary keys for the query
         primary_keys = self._get_primary_keys_to_read_from_online_store(
-            flight_id=flight_id,
             current_flight_time=current_flight_time,
-            altitude=altitude,
-            flight_level=flight_level,
             latitude=latitude,
             longitude=longitude,
+            flight_id=flight_id,
+            flight_level=flight_level
         )
         logger.debug(f'Primary keys: {primary_keys}')
 
@@ -189,3 +308,5 @@ class HopsworksFlightsReader:
         features = features.sort_values(by='current_flight_time').reset_index(drop=True)
 
         return features
+
+

@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from  typing import Optional
-
+from typing import Optional
 
 class Flight(BaseModel):
     """
@@ -9,10 +8,6 @@ class Flight(BaseModel):
 
     aircraft_iata_code: str
     aircraft_icao_code: str
-    aircraft_mtow_kg : float
-    aircraft_malw_kg : float
-    aircraft_engine_class : str
-    aircraft_num_engines : int
     airline_iata_code: str
     airline_icao_code: str
     airline_name: str
@@ -35,28 +30,24 @@ class Flight(BaseModel):
     latitude: float
     longitude: float
     vertical_speed: float
-    true_airspeed_ms: float
     departure_country: str
     arrival_country: str
     route: str
-    departure_airport_lat : float
-    departure_airport_long : float
-    arrival_airport_lat : float
-    arrival_airport_long : float
+    #departure_airport_alt : float
+    #arrival_airport_alt : float
+    #departure_airport_long : float
+    #arrival_airport_long : float
     
 
 
 class FlightWeather(BaseModel):
     """
-    A class to represent a flight using pydantic BaseModel.
+    A class to represent a flight with weather data using pydantic BaseModel.
     """
 
+    # Flight details
     aircraft_iata_code: str
     aircraft_icao_code: str
-    aircraft_mtow_kg : float
-    aircraft_malw_kg : float
-    aircraft_engine_class : str
-    aircraft_num_engines : int
     airline_iata_code: str
     airline_icao_code: str
     airline_name: str
@@ -76,43 +67,34 @@ class FlightWeather(BaseModel):
     flight_status: str
     horizontal_speed: float
     isGround: bool
-    latitude: str
-    longitude: str
+    latitude: float
+    longitude: float
     vertical_speed: float
-    true_airspeed_ms: float
-    mach_number: float
     departure_country: str
     arrival_country: str
     route: str
-    departure_airport_lat : float
-    arrival_airport_lat : float
-    departure_airport_long : float
-    arrival_airport_long : float
-    temperature_C: float
-    pressure_hPa: float
-    wind_speed_u_ms: float
-    wind_speed_v_ms: float
-    wind_speed_ms : float
-    geopotential_height_m: float
-    relative_humidity_percent: float
-    total_cloud_cover_octas: float
-    high_cloud_cover_octas: float
-    specific_humidity_kg_kg: float
-    prob_contrails_percent: float
-    global_radiation_W_m2:  float
-    
-    
+
+    # Weather data (with Optional type)
+    temperature_C: Optional[float] = None  # Temperature in Celsius
+    wind_speed_u_ms: Optional[float] = None  # U component of wind speed
+    wind_speed_v_ms: Optional[float] = None  # V component of wind speed
+    wind_direction: Optional[float] = None  # Wind direction in degrees
+    pressure_hPa: Optional[float] = None  # Atmospheric pressure in hPa
+    geopotential_height_m: Optional[float] = None  # Geopotential height in meters
+    relative_humidity_percent: Optional[float] = None  # Relative humidity in percent
+    specific_humidity_kg_kg: Optional[float] = None  # Specific humidity in kg/kg
+    total_cloud_cover_octas: Optional[float] = None  # Total cloud cover in octas
+    high_cloud_cover_octas: Optional[float] = None  # High cloud cover in octas
+    downward_shortwave_radiation_W_m2: Optional[float] = None  # Downward shortwave radiation flux in W/m^2
+
     def to_dict(self):
         """
         Convert the FlightWeather instance to a dictionary.
         """
         return {
+            # Flight details
             "aircraft_iata_code": self.aircraft_iata_code,
             "aircraft_icao_code": self.aircraft_icao_code,
-            "aircraft_mtow_kg" : self.aircraft_mtow_kg,
-            "aircraft_malw_kg" : self.aircraft_malw_kg,
-            "aircraft_engine_class" : self.aircraft_engine_class,
-            "aircraft_num_engines" : self.aircraft_num_engines,
             "airline_iata_code": self.airline_iata_code,
             "airline_icao_code": self.airline_icao_code,
             "airline_name": self.airline_name,
@@ -135,25 +117,20 @@ class FlightWeather(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "vertical_speed": self.vertical_speed,
-            "true_airspeed_ms": self.true_airspeed_ms,
-            "mach_number": self.mach_number,
             "departure_country": self.departure_country,
             "arrival_country": self.arrival_country,
             "route": self.route,
-            "departure_airport_lat": self.departure_airport_lat,
-            "arrival_airport_lat": self.arrival_airport_lat,
-            "departure_airport_long": self.departure_airport_long,
-            "arrival_airport_long": self.arrival_airport_long,
+
+            # Weather data
             "temperature_C": self.temperature_C,
-            "pressure_hPa": self.pressure_hPa,
             "wind_speed_u_ms": self.wind_speed_u_ms,
             "wind_speed_v_ms": self.wind_speed_v_ms,
-            "wind_speed_ms": self.wind_speed_ms,
+            "wind_direction": self.wind_direction,
+            "pressure_hPa": self.pressure_hPa,
             "geopotential_height_m": self.geopotential_height_m,
             "relative_humidity_percent": self.relative_humidity_percent,
+            "specific_humidity_kg_kg": self.specific_humidity_kg_kg,
             "total_cloud_cover_octas": self.total_cloud_cover_octas,
             "high_cloud_cover_octas": self.high_cloud_cover_octas,
-            "specific_humidity_kg_kg": self.specific_humidity_kg_kg,
-            "prob_contrails_percent": self.prob_contrails_percent,
-            "global_radiation_W_m2": self.global_radiation_W_m2,
+            "downward_shortwave_radiation_W_m2": self.downward_shortwave_radiation_W_m2,
         }

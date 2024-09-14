@@ -6,7 +6,12 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.10,<3.13"
+pydantic-settings = "^2.4.0"
+quixstreams = "^2.10.0"
+loguru = "^0.7.2"
+pandas = "<2.2.0"
+hopsworks = "^3.7.0"
 
 
 [build-system]

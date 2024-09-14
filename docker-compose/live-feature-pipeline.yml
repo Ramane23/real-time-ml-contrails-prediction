@@ -25,7 +25,7 @@ services:
     env_file:
       - ../services/flights_producer/setup_live_config.sh
     restart: always
-    
+  
   flights_with_weather:
     container_name: live_flights_with_weather
     build:
@@ -36,4 +36,16 @@ services:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092
     env_file:
       - ../services/flights_with_weather/setup_live_config.sh
+    restart: always
+
+  flights_to_feature_store:
+    container_name: live_flights_to_feature_store
+    build:
+      context: ../services/flights_to_feature_store
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+    env_file:
+      - ../services/flights_to_feature_store/setup_live_config.sh
     restart: always

@@ -1,5 +1,5 @@
-from typing import List
-
+from typing import List, Any, Optional, Tuple
+from datetime import datetime
 from loguru import logger
 from quixstreams import Application
 import time
@@ -7,6 +7,7 @@ from src.config import config
 from src.aviation_edge_api.live_flights import LiveFlights
 from src.aviation_edge_api.historical_flights import historicalFlights
 from src.aviation_edge_api.flight import Flight
+
 
 
 def produce_flights(
@@ -28,7 +29,10 @@ def produce_flights(
     # breakpoint()
 
     # the topic where we will save the flights data
-    topic = app.topic(name=kafka_topic_name, value_serializer="json")
+    topic = app.topic(
+        name=kafka_topic_name, 
+        value_serializer="json",
+        )
 
     logger.info("subscribing to aviation edge API to fetch data")
 
