@@ -1,50 +1,24 @@
 from loguru import logger
 from typing import List, Dict
-import time
-import hopsworks
-from hsfs.client.exceptions import FeatureStoreException
 import pandas as pd
 
-from tools.infrastructures.hopsworks import HopsworksFlightsWriter, HopsworksFlightsReader
-from src.config import config
-
-logger.debug('Backend module loaded')
-logger.debug(f'Config: {config.model_dump()}')
-
-#Instantiate the HopsworksFlightsWriter class
-hopsworks_flights_writer = HopsworksFlightsWriter(
-    config.feature_group_name, 
-    config.feature_group_version, 
-    config.hopsworks_project_name, 
-    config.hopsworks_api_key
-)
-
-#Instantiate the HopsworksFlightsReader class
-hopsworks_flights_reader = HopsworksFlightsReader(
-    hopsworks_flights_writer.get_feature_store(),
-    hopsworks_flights_writer.feature_group_name,
-    hopsworks_flights_writer.feature_group_version,
-    config.feature_view_name,
-    config.feature_view_version
-)
-
+from hopsworks_fs import  GetFeaturesFromTheStore
+from config import config
 
 if __name__ == '__main__':
-
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser()
-    parser.add_argument('--online', action='store_true')
-    parser.add_argument('--offline', action='store_true')
-    args = parser.parse_args()
-
-    if args.online and args.offline:
-        raise ValueError('You cannot pass both --online and --offline')    
-    online_or_offline = 'offline' if args.offline else 'online'
+        
+    logger.debug('Backend module loaded')
+    logger.debug(f'Config: {config.model_dump()}')
     
-    from loguru import logger
-    data = get_features_from_the_store(online_or_offline)
-    
-    logger.debug(f'Received {len(data)} rows of data from the Feature Store')
-
-    logger.debug(data.head())
+    #Instantiate the GetFeaturesFromTheStore class
+    get_features_from_the_store = GetFeaturesFromTheStore()
+        
+    #retrieve the flights data from the hopsworks feature store
+    flights_data = get_features_from_the_store.get_features(live_or_historical=config.live_or_historical)
+    #breakpoint()     
+    if flights_data is None or flights_data.empty:
+        logger.error("No data retrieved from the Feature Store. The DataFrame is empty or None.")
+    else:
+        logger.info(f"Retrieved {len(flights_data)} rows from the Feature Store.")
+        logger.info(flights_data.head())
+            

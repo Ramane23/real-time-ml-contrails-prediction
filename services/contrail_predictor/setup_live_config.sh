@@ -1,7 +1,7 @@
 #!/bin/bash
 export KAFKA_BROKER_ADDRESS="localhost:19092"
 export KAFKA_TOPIC_NAME="live_flights_with_weather"
-export KAFKA_CONSUMER_GROUP="live_flights_with_weather_consumer"
+export KAFKA_CONSUMER_GROUP="live_flights_with_weather_consumer_primary_keys"
 export LIVE_OR_HISTORICAL="live"
 export HOPSWORKS_API_KEY="MxkTFcD7JWLb15l0.T6u5GKvw6thyaxkk6qLSYXcTCZr8efDc6yfuJehsaDxeUHBxebGbuKyfkJTib8b6"
 export HOPSWORKS_PROJECT_NAME="Ramane"
@@ -9,4 +9,4 @@ export FEATURE_GROUP_NAME="live_flights_tracking_with_weather_data"
 export FEATURE_GROUP_VERSION=1
 export FEATURE_VIEW_NAME="live_flights_tracking_with_weather_view"
 export FEATURE_VIEW_VERSION=1
-export BUFFER_SIZE=20
+export LAST_N_MINUTES=60

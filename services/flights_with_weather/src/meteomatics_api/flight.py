@@ -9,11 +9,11 @@ class Flight(BaseModel):
 
     aircraft_iata_code: str
     aircraft_icao_code: str
-    aircraft_mtow_kg : float
-    aircraft_malw_kg : float
-    aircraft_engine_class : str
-    aircraft_num_engines : int
-    airline_iata_code: str
+    aircraft_mtow_kg : Optional[float] = None
+    aircraft_malw_kg : Optional[float] = None
+    aircraft_engine_class : Optional[str] = "unknown"
+    aircraft_num_engines : Optional[int] = None
+    airline_iata_code: str 
     airline_icao_code: str
     airline_name: str
     altitude: float
@@ -39,10 +39,10 @@ class Flight(BaseModel):
     departure_country: str
     arrival_country: str
     route: str
-    departure_airport_lat : float
-    departure_airport_long : float
-    arrival_airport_lat : float
-    arrival_airport_long : float
+    departure_airport_lat : Optional[float] = "unknown"
+    departure_airport_long : Optional[float] = "unknown"
+    arrival_airport_lat : Optional[float] = "unknown"
+    arrival_airport_long : Optional[float] = "unknown"
     
 
 
@@ -53,10 +53,10 @@ class FlightWeather(BaseModel):
 
     aircraft_iata_code: str
     aircraft_icao_code: str
-    aircraft_mtow_kg : float
-    aircraft_malw_kg : float
-    aircraft_engine_class : str
-    aircraft_num_engines : int
+    aircraft_mtow_kg : Optional[float] = None
+    aircraft_malw_kg : Optional[float] = None
+    aircraft_engine_class : Optional[str] = "unknown"
+    aircraft_num_engines : Optional[int] = None
     airline_iata_code: str
     airline_icao_code: str
     airline_name: str
@@ -84,10 +84,10 @@ class FlightWeather(BaseModel):
     departure_country: str
     arrival_country: str
     route: str
-    departure_airport_lat : float
-    arrival_airport_lat : float
-    departure_airport_long : float
-    arrival_airport_long : float
+    departure_airport_lat : Optional[float] = "unknown"
+    departure_airport_long : Optional[float] = "unknown"
+    arrival_airport_lat : Optional[float] = "unknown"
+    arrival_airport_long : Optional[float] = "unknown"
     temperature_C: float
     pressure_hPa: float
     wind_speed_u_ms: float

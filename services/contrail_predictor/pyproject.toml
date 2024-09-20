@@ -6,7 +6,21 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"
+loguru = "^0.7.2"
+hopsworks = "^3.7.0"
+hsfs = "^3.7.7"
+pydantic-settings = ">=2.3,<2.5"
+quixstreams = "^2.10.0"
+streamlit = "^1.38.0"
+pydeck = "^0.9.1"
+requests = "^2.32.3"
+folium = "^0.17.0"
+geopy = "^2.4.1"
+streamlit-folium = "^0.22.1"
+ipykernel = "^6.29.5"
+streamlit-autorefresh = "^1.0.1"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

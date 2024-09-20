@@ -6,7 +6,7 @@ from datetime import datetime
 from loguru import logger
 
 from src.aviation_edge_api.flight import Flight
-from src.path import get_airports_path, get_airlines_path , get_aircrafts_path
+from src.paths import get_airports_path, get_airlines_path , get_aircrafts_path
 
 
 class historicalFlights:

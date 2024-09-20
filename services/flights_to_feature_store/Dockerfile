@@ -22,7 +22,7 @@ ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 COPY pyproject.toml poetry.lock /app/
 
 # copy the tools directory into the container so that we can install it
-COPY /tools /app/tools
+#COPY /tools /app/tools
 
 # Install Python dependencies from the pyproject.toml file
 RUN poetry install

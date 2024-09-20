@@ -4,9 +4,13 @@ import json
 from loguru import logger
 from datetime import datetime, timezone
 import uuid
+from time import sleep
 
 from src.config import config
-from tools.infrastructures.hopsworks import HopsworksFlightsWriter, HopsworksFlightsReader
+from src.hopsworks_fs import HopsworksFlightsWriter, HopsworksFlightsReader
+
+logger.debug('flights_to_feature_store service is starting...')
+logger.debug(f'Config: {config.model_dump()}')
 
 #Instantiate the HopsworksFlightsWriter class
 hopsworks_flights_writer = HopsworksFlightsWriter(
@@ -83,7 +87,7 @@ def flights_to_feature_store(
         #because if the consumer group already exists, it will start reading from the last offset
         #meaning that it will start reading from the last message that was read by the consumer group
         auto_offset_reset="earliest" if live_or_historical == 'historical' else "latest",
-        commit_interval=1.0 #commit the consumer offsets every 1 second 
+        commit_interval=1.0 #commit the consumer offsets every 1 second  
     )
     logger.info("Application created")
     # let's connect the app to the input topic
@@ -97,7 +101,7 @@ def flights_to_feature_store(
     # Create a consumer and start a polling loop
     with app.get_consumer() as consumer:
         consumer.subscribe(topics=[topic.name])
-        logger.info(f"Subscribed to topic {kafka_topic_name}")
+        logger.info(f"Subscribed to topic {kafka_topic_name}") 
         while True:
             msg = consumer.poll(1) #how much time to wait for a message before skipping to the next iteration
             if msg is None:
@@ -111,15 +115,33 @@ def flights_to_feature_store(
                 if (get_current_utc_ts() - last_save_to_feature_store_ts)>= save_every_n_sec and len(buffer) > 0:
                     logger.debug("Excedeed the timer limit, pushing the data to the feature store")
                     #breakpoint()
-                    #push the available data to the feature store
-                    hopsworks_flights_writer.push_flight_data_to_feature_store(
-                        flight_data=buffer, 
+                    if live_or_historical == "live":
+                        logger.debug("Pushing the live flight data to the online feature store")
+                        sleep(0.1) # wait for 0.1 seconds befor pushing the data
+                        #push the available data to the feature store
+                        hopsworks_flights_writer.push_flight_data_to_feature_store(
+                        flight_data=buffer 
                         #feature_group_name=feature_group_name, 
                         #feature_group_version=feature_group_version,
-                        online_or_offline = "online"  if live_or_historical == "live" else "offline"
-                    )
-                    #clear the buffer
-                    buffer = []
+                        #online_or_offline = "online"  if live_or_historical == "live" else "offline"
+                        )
+                        #breakpoint()
+                        #clear the buffer
+                        buffer = []
+                        
+                    elif live_or_historical == "historical":
+                        logger.debug("Pushing the historical flight data to the offline feature store")
+                        #push the available data to the feature store
+                        hopsworks_flights_writer.push_flight_data_to_feature_store(
+                        flight_data=buffer 
+                        #feature_group_name=feature_group_name, 
+                        #feature_group_version=feature_group_version,
+                        #online_or_offline = "online"  if live_or_historical == "live" else "offline"
+                        )
+                        #breakpoint()
+                        #clear the buffer
+                        buffer = []
+                        
                 else:
                     #if the last message was received less than save_every_n_sec seconds ago we will skip to the next iteration
                     logger.debug("Timer limit not excedeed, continuing the polling from the input Kafka topic")
@@ -141,15 +163,31 @@ def flights_to_feature_store(
                 #check if the buffer is full
                 if len(buffer) >= buffer_size:
                     # step 2 -> store the data in the feature store
-                    hopsworks_flights_writer.push_flight_data_to_feature_store(
-                        flight_data=buffer, 
+                    if live_or_historical == "live":
+                        logger.debug("Pushing the live flight data to the online feature store")
+                        sleep(0.1) # wait for 0.1 seconds befor pushing the data
+                        #push the available data to the feature store
+                        hopsworks_flights_writer.push_flight_data_to_feature_store(
+                        flight_data=buffer 
                         #feature_group_name=feature_group_name, 
                         #feature_group_version=feature_group_version,
-                        online_or_offline = "online"  if live_or_historical == "live" else "offline"
-                    )
-                    #breakpoint()
-                    #clear the buffer
-                    buffer = []
+                        #online_or_offline = "online"  if live_or_historical == "live" else "offline"
+                        )
+                        #breakpoint()
+                        #clear the buffer
+                        buffer = []
+                    elif live_or_historical == "historical":
+                        logger.debug("Pushing the historical flight data to the offline feature store")
+                        #push the available data to the feature store
+                        hopsworks_flights_writer.push_flight_data_to_feature_store(
+                        flight_data=buffer 
+                        #feature_group_name=feature_group_name, 
+                        #feature_group_version=feature_group_version,
+                        #online_or_offline = "online"  if live_or_historical == "live" else "offline"
+                        )
+                        #breakpoint()
+                        #clear the buffer
+                        buffer = []
                 # update the last_save_to_feature_store_ts
                 last_save_to_feature_store_ts = get_current_utc_ts()
 

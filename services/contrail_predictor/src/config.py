@@ -1,7 +1,12 @@
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
 from typing import Optional
+import os
+from dotenv import load_dotenv
 
+env_file = "../setup_historical_config.env"
+# Load the environment variables from the .env file
+load_dotenv(dotenv_path=env_file)
 
 class Config(BaseSettings):
     
@@ -22,7 +27,7 @@ class Config(BaseSettings):
     kafka_broker_address: str
     kafka_consumer_group: str
     live_or_historical : str
-    last_n_minutes: Optional[int] 
+    last_n_minutes: Optional[int] = None
     
     # Validate the value of the live_or_batch setting
     @field_validator("live_or_historical")
