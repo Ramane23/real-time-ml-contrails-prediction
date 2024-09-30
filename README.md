@@ -34,7 +34,7 @@ Technical Stack
 
 **Data Storage:** Hopsworks Feature Store
 
-**Deployment:** Docker, Kubernetes, Quix Cloud
+**Deployment:** Docker, Docker-compose , Quix Cloud
 
 **Data Streaming:** Redpanda (Message Queue)
 
