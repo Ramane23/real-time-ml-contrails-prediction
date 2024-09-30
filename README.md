@@ -1,4 +1,4 @@
-**Real-Time ML Contrails Prediction System**
+**Real-Time ML Contrails (condensation trails) Prediction System**
 
 **Project Overview**
 This project aims to predict contrail formation in real-time for commercial flights using machine learning models and environmental data. Contrails are the condensation trails left behind by aircraft that can contribute significantly to global warming. By accurately predicting when and where contrails form, this project helps airlines reduce their environmental impact through optimized flight routes and operational strategies.
