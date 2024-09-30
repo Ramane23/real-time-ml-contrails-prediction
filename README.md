@@ -63,27 +63,6 @@ Set up your API keys and other environment variables in the .sh file as needed.
 # Run the Streamlit dashboard:
 streamlit run services/features_dashboard/src/frontend.py
 
-**Project Structure**
-
-├── docker-compose
-│   ├── historical-feature-pipeline.yml
-│   ├── live-feature-pipeline.yml
-│   └── redpanda.yml
-├── services
-│   ├── contrail_predictor
-│   │   ├── src
-│   │   └── tests
-│   ├── features_dashboard
-│   │   ├── src
-│   │   └── tests
-│   ├── flights_producer
-│   ├── flights_to_feature_store
-│   └── flights_with_weather
-├── tools
-│   └── infrastructures
-└── README.md
-
-
 **How to Contribute ?**
 
 Fork the repository.
