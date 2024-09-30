@@ -65,18 +65,20 @@ streamlit run services/features_dashboard/src/frontend.py
 
 **Project Structure**
 
+Project Structure
 ├── docker-compose
-│   ├── historical-feature-pipeline.yml
-│   ├── live-feature-pipeline.yml
-│   └── redpanda.yml
+│   ├── historical-feature-pipeline.yml
+│   ├── live-feature-pipeline.yml
+│   └── redpanda.yml
 ├── services
-│   ├── contrail_predictor
-│   ├── features_dashboard
-│   ├── flights_producer
-│   ├── flights_to_feature_store
-│   └── flights_with_weather
+│   ├── contrail_predictor
+│   ├── features_dashboard
+│   ├── flights_producer
+│   ├── flights_to_feature_store
+│   └── flights_with_weather
 ├── tools
 └── README.md
+
 
 **How to Contribute ?**
 
