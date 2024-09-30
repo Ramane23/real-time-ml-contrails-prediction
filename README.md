@@ -46,8 +46,6 @@ Technical Stack
 
 **Setup and Installation**
 
-**Clone the Repository:**
-
   # Clone the repository
   git clone https://github.com/Ramane23/real-time-ml-contrails-prediction.git
 
