@@ -28,7 +28,7 @@ class Config(BaseSettings):
     kafka_consumer_group: str
     live_or_historical : str
     last_n_minutes: Optional[int] = None
-    
+     
     # Validate the value of the live_or_batch setting
     @field_validator("live_or_historical")
     def validate_live_or_historical(

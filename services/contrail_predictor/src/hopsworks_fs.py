@@ -11,7 +11,7 @@ from hsfs.client.exceptions import FeatureStoreException
 from hsfs.feature_group import FeatureGroup
 from hsfs.feature_view import FeatureView
 
-from src.config import config
+from config import config
 
 # This class is responsible for writing the flights data to a feature group in Hopsworks
 class HopsworksFlightsWriter:
