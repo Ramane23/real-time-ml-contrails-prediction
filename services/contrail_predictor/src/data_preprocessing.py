@@ -7,8 +7,6 @@ import warnings
 import numpy as np
 from typing import List
 from tqdm import tqdm
-from openap import prop, FuelFlow, Emission
-
 
 #Ignore warnings
 warnings.filterwarnings('ignore')
@@ -19,7 +17,8 @@ class DataPreprocessing:
         self.static_columns = [
             'flight_id', 'route', 'aircraft_mtow_kg', 'aircraft_malw_kg', 
             'aircraft_engine_class', 'aircraft_num_engines', 'aircraft_type',
-            'departure_airport_lat', 'arrival_airport_lat', 'departure_airport_long', 'arrival_airport_long'
+            'departure_airport_lat', 'arrival_airport_lat', 'departure_airport_long', 
+            'arrival_airport_long'
         ]
         self. dynamic_columns = [
             'mach_number', 'true_airspeed_ms', 'altitude', 'flight_level', 'latitude', 'longitude', 'horizontal_speed',
@@ -30,7 +29,8 @@ class DataPreprocessing:
         ]
         self.not_altitude_related_columns = [
             'mach_number', 'true_airspeed_ms', 'horizontal_speed', 'vertical_speed', 'latitude', 'longitude', 
-            'departure_airport_lat', 'arrival_airport_lat', 'departure_airport_long', 'arrival_airport_long'
+            'direction', 'departure_airport_lat', 'arrival_airport_lat', 'departure_airport_long', 'arrival_airport_long',
+            'wind_speed_u_ms', 'wind_speed_v_ms', 'wind_speed_ms'
         ]
         self.weather_columns = [
             'temperature_c', 'pressure_hpa', 'wind_speed_u_ms', 'wind_speed_v_ms',
@@ -289,7 +289,6 @@ class DataPreprocessing:
         Returns:
             pd.DataFrame: Grouped DataFrame with interpolated altitude and related features
         """
-        logger.debug('Interpolating altitude and related features...')
         # Loop through each row to handle altitude and related features
         for i in tqdm(range(1, len(flights_data_ffill_non_altitude_related_columns))):
             # Only handle rows where altitude is NaN
@@ -352,7 +351,36 @@ class DataPreprocessing:
         
         return flights_data_handled_altitude_related_features
     
-    
+    #method to apply the handle_altitude_and_related_features method to all groups
+    def apply_handle_altitude_and_related_features_to_all_groups(
+        self,
+        flights_data_ffill_non_altitude_related_columns: pd.DataFrame,
+        ) -> pd.DataFrame:
+        """ this function applies the handle_altitude_and_related_features method to all groups in the flights data
+
+        Args:
+            flights_data_ffill_non_altitude_related_columns (pd.DataFrame): a pandas dataframe containing the flights data with interpolated non-altitude related columns
+
+        Returns:
+            pd.DataFrame: a pandas dataframe containing the flights data with interpolated altitude related columns
+        """
+        groups = []  # Store processed groups
+        for flight_id in tqdm(flights_data_ffill_non_altitude_related_columns['flight_id'].unique()):
+            logger.debug(f'Interpolating altitude and related features for the group of the flight {flight_id} ...')
+            group = self.handle_altitude_and_related_features(
+            flights_data_ffill_non_altitude_related_columns.groupby('flight_id').get_group(flight_id), 
+                self.altitude_related_columns
+            )
+            groups.append(group)  # Add the processed group to the list
+                
+        logger.debug(f'there are {len(groups)} groups in the list')
+            
+        # Concatenate all groups at once after processing
+        flights_data_handled_altitude_related_features = pd.concat(groups)
+        logger.debug(f"there are {flights_data_handled_altitude_related_features.shape[0]} rows and {flights_data_handled_altitude_related_features.shape[1]} columns in the updated data")
+        
+        return flights_data_handled_altitude_related_features
+   
     #method to drop duplicates by flight_id and flight time
     def drop_duplicates_by_flight_id_and_time(
         self,
@@ -505,58 +533,92 @@ class DataPreprocessing:
         
         return df   
     
+    #method to apply the methods in the class to the flights data
+    def preprocess_data(
+        self
+        ) -> pd.DataFrame:
+        """
+        This function applies all the data preprocessing steps to the flights data.
+        
+        Parameters:
+        flights_data (pd.DataFrame): Input DataFrame with flight tracking data.
+        
+        Returns:
+        pd.DataFrame: Processed DataFrame with all the data preprocessing steps applied.
+        """
+        #download the flights data 
+        #flights_data = pd.read_csv('./files/flights_data_preprocessed.csv')
+        
+        # Retrieve the flights data
+        flights_data = self._get_flight_data()
+        # Aggregate the flights data by flight_id and current_flight_time
+        flights_data_by_flight_id = self._aggregate_flights_data(flights_data)
+        
+        # Floor timestamps and fill missing timestamps
+        flights_data_floored_and_filled = self.floor_and_fill_timestamps(flights_data_by_flight_id, flight_id_column='flight_id', keep='last')
+        
+        # Forward fill static columns
+        flights_data_ffill_static_columns = self.forward_fill_static_columns(flights_data_floored_and_filled, static_columns=self.static_columns)
+        
+        # Interpolate missing non-altitude related columns
+        flights_data_ffill_non_altitude_related_columns = self.interpolate_non_altitude_related_columns(flights_data_ffill_static_columns, columns=self.not_altitude_related_columns)
+        
+        # Handle altitude and related features for all groups
+        flights_data_handled_altitude_related_columns = self.apply_handle_altitude_and_related_features_to_all_groups(flights_data_ffill_non_altitude_related_columns)
+        
+        # Drop duplicates by flight_id and current_flight_time
+        flights_drop_duplicates_by_flight_id_and_time = self.drop_duplicates_by_flight_id_and_time(flights_data_handled_altitude_related_columns)
+        
+        # Compute flight level
+        flights_data_with_adjusted_flight_level = self.compute_flight_level(flights_drop_duplicates_by_flight_id_and_time, altitude_column='altitude')
+        
+        # Add flight phase
+        flights_with_flight_phase = self.add_flight_phase(flights_data_with_adjusted_flight_level)
+        
+        # Create the target variable
+        flights_with_target_variable = self.create_target_variable(flights_with_flight_phase)
+        
+        # Perform time-aware downsampling
+        #flights_data_downsampled = self.time_aware_downsample(flights_data, target_column='contrail_formation', time_block='H')
+        
+        return flights_with_target_variable
+    
 if __name__ == "__main__":
     
     #Instantiate the DataPreprocessing class
     data_preprocessing = DataPreprocessing()
     
+    flights_data = data_preprocessing.preprocess_data()
+    
     #Retrieve the flights data
-    flights_data = data_preprocessing._get_flight_data()
+    #flights_data = data_preprocessing._get_flight_data()
     
     #Aggregate the flights data by flight_id and current_flight_time
-    flights_data_by_flight_id = data_preprocessing._aggregate_flights_data(flights_data)
+    #flights_data_by_flight_id = data_preprocessing._aggregate_flights_data(flights_data)
     
     #Floor timestamps and fill missing timestamps
-    flights_data_floored_and_filled = data_preprocessing.floor_and_fill_timestamps(flights_data_by_flight_id, flight_id_column='flight_id', keep='last')
+    #flights_data_floored_and_filled = data_preprocessing.floor_and_fill_timestamps(flights_data_by_flight_id, flight_id_column='flight_id', keep='last')
     
     #Forward fill static columns
-    flights_data_ffill_static_columns = data_preprocessing.forward_fill_static_columns(flights_data_floored_and_filled, static_columns=data_preprocessing.static_columns)
+    #flights_data_ffill_static_columns = data_preprocessing.forward_fill_static_columns(flights_data_floored_and_filled, static_columns=data_preprocessing.static_columns)
     
     #Interpolate missing non-altitude related columns
-    flights_data_ffill_non_altitude_related_columns = data_preprocessing.interpolate_non_altitude_related_columns(flights_data_ffill_static_columns, columns=data_preprocessing.not_altitude_related_columns)
+    #flights_data_ffill_non_altitude_related_columns = data_preprocessing.interpolate_non_altitude_related_columns(flights_data_ffill_static_columns, columns=data_preprocessing.not_altitude_related_columns)
     
-    #Interpolate missing altitude related columns
-    #flights_data_handled_altitude_related_columns = data_preprocessing.handle_altitude_and_related_features(flights_data_ffill_non_altitude_related_columns, columns=data_preprocessing.altitude_related_columns)
-    
-    #handdle altitude and related features for all groups
-    groups = []  # Store processed groups
-    for flight_id in tqdm(flights_data_ffill_non_altitude_related_columns['flight_id'].unique()):
-        group = data_preprocessing.handle_altitude_and_related_features(
-        flights_data_ffill_non_altitude_related_columns.groupby('flight_id').get_group(flight_id), 
-            data_preprocessing.altitude_related_columns
-        )
-    groups.append(group)  # Add the processed group to the list
-             
-    logger.debug(f'there are {len(groups)} groups in the list')
-        
-    # Concatenate all groups at once after processing
-    flights_data_handled_altitude_related_features = pd.concat(groups)
-    logger.debug(f"there are {flights_data_handled_altitude_related_features.shape[0]} rows and {flights_data_handled_altitude_related_features.shape[1]} columns in the updated data")
+    ##handdle altitude and related features for all groups
+    #flights_data_handled_altitude_related_columns = data_preprocessing.apply_handle_altitude_and_related_features_to_all_groups(flights_data_ffill_non_altitude_related_columns)
     
     #Drop duplicates by flight_id and current_flight_time
-    flights_drop_duplicates_by_flight_id_and_time = data_preprocessing.drop_duplicates_by_flight_id_and_time(flights_data_handled_altitude_related_features)
-    
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        logger.info(flights_drop_duplicates_by_flight_id_and_time.head(10))
+    #flights_drop_duplicates_by_flight_id_and_time = data_preprocessing.drop_duplicates_by_flight_id_and_time(flights_data_handled_altitude_related_columns)
         
     #Compute flight level
-    flights_data_with_adjusted_flight_level = data_preprocessing.compute_flight_level(flights_drop_duplicates_by_flight_id_and_time, altitude_column='altitude')
+    #flights_data_with_adjusted_flight_level = data_preprocessing.compute_flight_level(flights_drop_duplicates_by_flight_id_and_time, altitude_column='altitude')
     
     #Add flight phase
-    flights_with_flight_phase = data_preprocessing.add_flight_phase(flights_data_with_adjusted_flight_level)
+    #flights_with_flight_phase = data_preprocessing.add_flight_phase(flights_data_with_adjusted_flight_level)
     
     #Create the target variable
-    flights_with_target_variable = data_preprocessing.create_target_variable(flights_with_flight_phase)
+    #flights_with_target_variable = data_preprocessing.create_target_variable(flights_with_flight_phase)
     
     #save the preprocessed data to a csv file
-    flights_with_flight_phase.to_csv('../files/flights_data_preprocessed.csv')
+    flights_data.to_csv('./files/flights_data_preprocessed.csv')

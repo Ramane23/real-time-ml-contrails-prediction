@@ -37,5 +37,9 @@ class Config(BaseSettings):
         if value not in {"live", "historical"}:
             raise ValueError("Invalid value for live_or_historical")
         return value
+    
+    comet_ml_api_key: str
+    comet_ml_project_name: str
+    comet_ml_workspace: str
 
 config = Config()
