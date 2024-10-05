@@ -1,10 +1,10 @@
 run-dev:
 	@echo "Running with setup_live_config.sh"
-	. ./setup_live_config.sh && poetry run python src/data_preprocessing.py
+	. ./setup_live_config.sh && poetry run python src/features_engineering.py
 	
 run-dev-historical:
 	@echo "Running with setup_historical_config.sh"
-	. ./setup_historical_config.sh && poetry run python src/data_preprocessing.py
+	. ./setup_historical_config.sh && poetry run python src/training.py
 
 build:
 	docker build -t flights-with-weather .

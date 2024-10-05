@@ -9,3 +9,7 @@ export FEATURE_GROUP_NAME="historical_flights_tracking_with_weather_data"
 export FEATURE_GROUP_VERSION=1
 export FEATURE_VIEW_NAME="historical_flights_tracking_with_weather_view"
 export FEATURE_VIEW_VERSION=1
+export COMET_ML_API_KEY="dm9Y7P3rP2HsnOJ4RIvrW6ULw"
+export COMET_ML_PROJECT_NAME="real-time-contrails-predictor"
+export COMET_ML_WORKSPACE="ramane23"
+

@@ -30,6 +30,7 @@ catboost = "^1.2.7"
 optuna = "^4.0.0"
 hsfs = "^3.7.7"
 tqdm = "^4.66.5"
+comet-ml = "^3.47.0"
 
 
 
@@ -46,6 +47,7 @@ jupyter-datatables = "^0.3.9"
 numpy = ">=1.22.2,<2.0.0"
 matplotlib = "^3.9.2"
 seaborn = "^0.13.2"
+duckdb = "^1.1.1"
 
 [build-system]
 requires = ["poetry-core"]
