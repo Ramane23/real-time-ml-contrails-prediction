@@ -1,45 +1,67 @@
-run-dev:
-	@echo "Running with setup_live_config.sh"
-	. ./setup_live_config.sh && poetry run python src/features_engineering.py
-	
-run-dev-historical:
+# Commands for training the model
+train:
 	@echo "Running with setup_historical_config.sh"
 	. ./setup_historical_config.sh && poetry run python src/training.py
 
-build:
-	docker build -t flights-with-weather .
+# Commands for running the prediction script
+predict:
+	@echo "Running with setup_historical_config.sh"
+	. ./setup_historical_config.sh && poetry run python src/prediction.py
 
+# Commands for running the FastAPI app with Uvicorn
+restapi:
+	@echo "Running with setup_live_config.sh"
+	. ./setup_live_config.sh && poetry run uvicorn restapi:app --host 0.0.0.0 --port 8000 --reload
+
+# Health check for the REST API
+check-health:
+	curl -X GET http://localhost:8000/healthcheck
+
+check-health-docker:
+	curl -X GET http://localhost:5005/healthcheck
+
+# Send a valid prediction request to the local API
+request:
+	curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{"route": "Athens - Thessaloniki"}'
+
+request-docker:
+	curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"route": "Frankfurt - Berlin"}'
+
+# Send a request to the production API (adjust the URL as needed)
+request-production:
+	curl -X POST https://price-predictor-plabartabajo-realtimemlsystemcohort-e9f528c7.deployments.quix.io/predict -H "Content-Type: application/json" -d '{"route": "Frankfurt - Berlin"}'
+
+# Send an invalid prediction request to test error handling
+invalid-request:
+	curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{"route": "Niamey - Ouagadougou"}'
+
+invalid-request-docker:
+	curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"route": "Niamey - Ouagadougou"}'
+
+# Build the Docker image
+build:
+	docker build -t contrail_predictor .
+
+# Stop and remove existing container (if exists) before running a new one
+clean:
+	docker stop contrail_predictor || true && docker rm contrail_predictor || true
+
+# Run the container after building
 run: build
 	docker run \
-		--name flights_with_weather_instance \
-		--network=redpanda_network \
-		-e KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
-		-e KAFKA_INPUT_TOPIC_NAME=live_flights \
-		-e KAFKA_CONSUMER_GROUP=live_flights_consumer \
-		-e KAFKA_OUTPUT_TOPIC_NAME=live_flights_with_weather \
-		-e AVIATION_EDGE_API_KEY=${AVIATION_EDGE_API_KEY} \
-		-e METEOMATICS_USERNAME=${METEOMATICS_USERNAME} \
-		-e METEOMATICS_PASSWORD=${METEOMATICS_PASSWORD} \
-		flights-with-weather
+		--name contrail_predictor \
+		--env-file ./setup_live_config.env \
+		-p 5005:8000 \
+		--name contrail_predictor \
+		contrail_predictor
 
-run-historical: build
-	docker volume create flights-with-weather-volume
-	docker run \
-		--name historical_flight_with_weather_instance \
-		--network=redpanda_network \
-		-e KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
-		-e KAFKA_INPUT_TOPIC_NAME=historical_flights \
-		-e KAFKA_CONSUMER_GROUP=historical_flights_consumer \
-		-e KAFKA_OUTPUT_TOPIC_NAME=historical_flights_with_weather \
-		-e AVIATION_EDGE_API_KEY=${AVIATION_EDGE_API_KEY} \
-		-e METEOMATICS_USERNAME=${METEOMATICS_USERNAME} \
-		-e METEOMATICS_PASSWORD=${METEOMATICS_PASSWORD} \
-		flights-with-weather
-
+# Lint code with ruff
 lint:
 	poetry run ruff check --fix
 
+# Format code with ruff
 format:
 	poetry run ruff format .
 
+# Run both linting and formatting
 lint-and-format: lint format

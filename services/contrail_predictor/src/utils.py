@@ -1,12 +1,12 @@
-
-def get_model_name(product_id: str) -> str:
+def get_model_name(target_column: str, model_type: str) -> str:
     """
-    Returns the model registry name for the given product_id.
+    Returns the model registry name for the given model type and target column.
 
     Args:
-        - product_id: the product_id of the model we want to fetch
-    
+        - target_column (str): The target column of the model.
+        - model_type (str): The type of the model (e.g., 'xgboost', 'lightgbm').
+
     Returns:
-        - str: the model registry name for the given product_id
+        - str: The model registry name based on the model type and target column.
     """
-    return f'{product_id.replace("/","_")}_price_change_predictor'
+    return f"best_{model_type}_{target_column}_model"

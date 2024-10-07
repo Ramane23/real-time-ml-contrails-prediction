@@ -6,7 +6,7 @@ authors = ["Ramane23 <contactsouley@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = ">=3.10,<3.13"
 loguru = "^0.7.2"
 pydantic-settings = ">=2.3,<2.5"
 quixstreams = "^2.10.0"
@@ -22,23 +22,16 @@ python-dotenv = "^1.0.1"
 openap = "^2.0"
 hopsworks = "^3.7.0"
 scikit-learn = "^1.5.2"
-torch = "^2.4.1"
 xgboost = "^2.1.1"
 imblearn = "^0.0"
 lightgbm = "^4.5.0"
-catboost = "^1.2.7"
 optuna = "^4.0.0"
 hsfs = "^3.7.7"
 tqdm = "^4.66.5"
 comet-ml = "^3.47.0"
-
-
-
-
-
-
-
-
+ruff = "^0.6.9"
+fastapi = "^0.115.0"
+uvicorn = "^0.31.0"
 
 
 [tool.poetry.group.dev.dependencies]

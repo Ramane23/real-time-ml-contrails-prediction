@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 from loguru import logger
 from typing import Tuple, Optional
@@ -12,6 +11,7 @@ from features_engineering import FeaturesEngineering
 from baseline_model import BaselineModel
 from model_factory import CategoricalFeatureEncoder
 from config import config
+from utils import get_model_name
 
 #display the content of the config file
 logger.debug('training service is starting...')
@@ -23,6 +23,10 @@ data_preprocessing = DataPreprocessing()
 features_engineering = FeaturesEngineering()
 
 def train(
+    feature_group_name: str,
+    feature_group_version: int,
+    feature_view_name: str,
+    feature_view_version: int,
     target_column: str,
     timestamp_split: str,
     comet_ml_api_key: str,
@@ -50,9 +54,15 @@ def train(
         project_name=comet_ml_project_name,
         workspace=comet_ml_workspace,
     )
+    
+    #log feature group and feature view names and versions
+    experiment.log_parameter('feature_group_name', feature_group_name)
+    experiment.log_parameter('feature_view_name', feature_view_name)
+    experiment.log_parameter('feature_group_version', feature_group_version)
+    experiment.log_parameter('feature_view_version', feature_view_version)
 
     # Step 1: Load and preprocess the dataset
-    logger.info(f"Loading and preprocessing data from the hopsworks feature store...")
+    logger.info("Loading and preprocessing data from the hopsworks feature store...")
     #df = data_preprocessing.preprocess_data()
     df = pd.read_csv('./files/flights_data_preprocessed.csv').head(400000)
         
@@ -127,30 +137,28 @@ def train(
 
     # Step 6: Save the best model based on the accuracy
     best_model = xgb_pipeline if xgb_metrics['Accuracy'] > lgb_metrics['Accuracy'] else lgbm_pipeline
-    save_model(best_model, './best_model.pkl')
+    save_model(best_model, './best_contrails_predictor.pkl')
     
     if best_model == xgb_pipeline:
-        model_name = f"best_xgboost_{target_column}_model"
-        #log the model 
-        experiment.log_model(name=model_name, file_or_folder='./best_model.pkl')
-        #push the model to the model registry if it performs better than the baseline model
+        model_name = get_model_name(target_column, model_type='xgboost')
+        experiment.log_model(name=model_name, file_or_folder='./best_contrails_predictor.pkl')
+        
+        # Push the model to the registry if it performs better than the baseline model
         if xgb_metrics['Accuracy'] > weighted_baseline_accuracy:
-            experiment.register_model(
-                model_name=model_name,
-            )
+            experiment.register_model(model_name=model_name)
         logger.info(f"Best model is XGBoost with accuracy: {xgb_metrics['Accuracy']}")
-        logger.info("model saved to the model registry")
+        logger.info("Model saved to the model registry")
+
     else:
-        model_name = f"best_lightgbm_{target_column}_model"
-        #log the model 
-        experiment.log_model(name=model_name, file_or_folder='./best_model.pkl')
-        #push the model to the model registry if it performs better than the baseline model
+        model_name = get_model_name(target_column, model_type='lightgbm')
+        experiment.log_model(name=model_name, file_or_folder='./best_contrails_predictor.pkl')
+        
+        # Push the model to the registry if it performs better than the baseline model
         if lgb_metrics['Accuracy'] > weighted_baseline_accuracy:
-            experiment.register_model(
-                model_name=model_name,
-            )
+            experiment.register_model(model_name=model_name)
         logger.info(f"Best model is LightGBM with accuracy: {lgb_metrics['Accuracy']}")
-        logger.info("model saved to the model registry")
+        logger.info("Model saved to the model registry")
+
 
 
 def split_train_test(
@@ -184,7 +192,6 @@ def split_train_test(
 def evaluate_model(
     model,
     test_data: pd.DataFrame,
-    target_column: str,
     description: Optional[str] = 'Model Evaluation'
 ) -> dict:
     """
@@ -249,6 +256,10 @@ def save_model(model, filename: str):
 if __name__ == '__main__':
     # Run the training pipeline
     train(
+        feature_group_name=config.feature_group_name,
+        feature_group_version=config.feature_group_version,
+        feature_view_name=config.feature_view_name,
+        feature_view_version=config.feature_view_version,
         target_column='contrail_formation',
         timestamp_split='2024-09-14 12:00:00',
         comet_ml_api_key=config.comet_ml_api_key,

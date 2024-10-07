@@ -4,11 +4,10 @@ from lightgbm import LGBMClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from loguru import logger
 import pandas as pd
-from typing import Tuple, Optional
-import numpy as np
+from typing import Optional
 
 # Import the existing FeaturesEngineering class
-from features_engineering import FeaturesEngineering
+from src.features_engineering import FeaturesEngineering
 
 # Custom Transformer for Encoding Categorical Features
 class CategoricalFeatureEncoder(BaseEstimator, TransformerMixin):

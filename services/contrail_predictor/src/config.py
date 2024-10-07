@@ -1,7 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
-from typing import Optional
-import os
+from typing import Optional, List
 from dotenv import load_dotenv
 
 env_file = "../setup_historical_config.env"
@@ -41,5 +40,14 @@ class Config(BaseSettings):
     comet_ml_api_key: str
     comet_ml_project_name: str
     comet_ml_workspace: str
+    twenty_busiest_european_routes: List[str] = [
+        'Toulouse - Paris', 'Madrid - Barcelona', 'Nice - Paris', 'Catania - Rome', 
+        'Berlin - Munich', 'Oslo - Trondheim', 'Frankfurt - Berlin', 'Oslo - Bergen', 
+        'Munich - Hamburg', 'London - Dublin', 'Barcelona - Palma de Mallorca', 
+        'Paris - Marseille', 'Stockholm - Gothenburg', 'Athens - Thessaloniki', 
+        'Vienna - Zurich', 'Milan - Rome', 'Helsinki - Oulu', 'Madrid - Malaga', 
+        'London - Amsterdam', 'Paris - Lyon'
+    ]
+
 
 config = Config()
