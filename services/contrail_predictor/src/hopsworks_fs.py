@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Dict
 import time
 import uuid
 from loguru import logger
@@ -11,7 +11,7 @@ from hsfs.client.exceptions import FeatureStoreException
 from hsfs.feature_group import FeatureGroup
 from hsfs.feature_view import FeatureView
 
-from config import config
+from src.config import config
 
 # This class is responsible for writing the flights data to a feature group in Hopsworks
 class HopsworksFlightsWriter:
@@ -284,7 +284,7 @@ class HopsworksFlightsReader:
                     name=self.feature_view_name,
                     version=self.feature_view_version,
                 )
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     'The feature group name and version must be provided if the feature view does not exist.'
                 )

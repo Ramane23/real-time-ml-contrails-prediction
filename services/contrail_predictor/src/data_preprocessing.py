@@ -1,12 +1,12 @@
-from hopsworks_fs import GetFeaturesFromTheStore
-from config import config 
 import pandas as pd
 from loguru import logger
 import datetime
 import warnings
 import numpy as np
-from typing import List
 from tqdm import tqdm
+
+from src.hopsworks_fs import GetFeaturesFromTheStore
+from src.config import config 
 
 #Ignore warnings
 warnings.filterwarnings('ignore')

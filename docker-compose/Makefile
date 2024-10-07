@@ -23,3 +23,21 @@ run-historical-feature-pipeline: build-historical-feature-pipeline
 
 stop-historical-feature-pipeline:
 	docker compose -f historical-feature-pipeline.yml down
+
+# Commands for running the training and prediction services*
+build-contrail-predictor:
+	docker compose -f contrail-predictor.yml build
+
+# Run the training and prediction services
+run-contrail-predictor: build-contrail-predictor
+	docker compose -f contrail-predictor.yml up -d
+
+# Stop the training and prediction services
+stop-contrail-predictor:
+	docker compose -f contrail-predictor.yml down
+
+check-health-docker:
+	curl -X GET http://localhost:5005/healthcheck
+
+request-docker:
+	curl -X POST http://localhost:5005/predict -H "Content-Type: application/json" -d '{"route": "Frankfurt - Berlin"}'

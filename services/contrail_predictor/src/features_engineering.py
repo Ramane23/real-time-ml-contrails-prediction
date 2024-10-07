@@ -1,18 +1,9 @@
 import pandas as pd
 from loguru import logger
-import datetime
 import warnings
-import numpy as np
-import tqdm
-import sqlite3
-import warnings
-from typing import Tuple, List
-import tqdm
+from typing import Tuple
 from openap import prop, FuelFlow, Emission
 from sklearn.base import BaseEstimator, TransformerMixin
-import warnings
-from sklearn.preprocessing import LabelEncoder
-from sklearn.utils import resample
 
 #ignore warnings
 warnings.filterwarnings('ignore')
@@ -578,28 +569,53 @@ class FeaturesEngineering(BaseEstimator, TransformerMixin):
         #breakpoint()
         # Step 1: Drop unsupported flights
         df = self.drop_unsupported_flights(df)
+        #log the cas where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after dropping flights with unsupported aircraft types.")
+            return df
         
         # Step 2: Add engine type to the dataframe
         df = self.add_engine_type_to_df(df)
+        #log the case where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after adding engine type.")
+            return df
         
         # Step 3: Add engine characteristics to the dataframe
         df = self.add_engine_characteristics_to_df(df)
+        #log the case where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after adding engine characteristics.")
+            return df
         
         # Step 4: Calculate fuel flow and emissions for the dataframe
         df = self.calculate_fuel_and_emissions(df, self.aircraft_type_mapping)
+        #log the case where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after calculating fuel flow and emissions.")
+            return df
         
         # Step 5: Reorder fuel and emission columns in the dataframe
         df = self.reorder_fuel_emission_columns(df)
+        #log the case where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after reordering fuel and emission columns.")
+            return df
         
         # Step 6: Add temporal features to the dataframe
         df = self.add_temporal_features(df)
+        #log the case where the dataframe is empty
+        if df.empty:
+            logger.warning(f"No data available for the inputed route, after adding temporal features.")
+            return df
         
-        # Step 7: Downsample the majority class to match the minority class
-        #df = self.time_aware_downsample(df)
+        # Step 7: Drop the prob contrails percent column to avoid data leakage
+        logger.debug('Dropping the prob_contrails_percent column to avoid data leakage...')
+        df.drop(columns=['prob_contrails_percent'], inplace=True)
         
+        #Separate the target column from the features
         y_transformed = df[target_column].astype(int)
         X_transformed = df.drop(columns=[target_column])
-
         #breakpoint()
         
         return X_transformed, y_transformed

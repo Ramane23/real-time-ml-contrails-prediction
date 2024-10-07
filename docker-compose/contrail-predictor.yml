@@ -1,0 +1,22 @@
+name: inference-pipeline
+
+version: '3.8'
+
+networks:
+  redpanda_network:
+    external: true
+
+services:
+  contrail_predictor:
+    container_name: contrail_predictor  # Define the container name
+    build:
+      context: ../services/contrail_predictor  # Specify the build context for the service
+    ports:
+      - "5005:8000"  # Map host port 5005 to container port 8000
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092  # Environment variable for Kafka Broker Address
+    env_file:
+      - ../services/contrail_predictor/setup_live_config.sh  # Load additional environment variables from .env file
+    restart: always  # Automatically restart the container if it exits
