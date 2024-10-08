@@ -5,12 +5,12 @@ from pydantic import field_validator
 # Define a class to hold the configuration settings
 class Config(BaseSettings):
     aviation_edge_api_key: str
-    kafka_broker_address: Optional[str] 
+    kafka_broker_address: Optional[str] = None #this is optional because quixcloud will provide the kafka broker address
     kafka_topic_name: str
     live_or_historical: str
     days : Optional[float] = 1
 
-    # Validate the value of the live_or_historical setting
+    # Validate the value of the live_or_historical settings
     @field_validator("live_or_historical")
     def validate_live_or_historical(
         cls, value
