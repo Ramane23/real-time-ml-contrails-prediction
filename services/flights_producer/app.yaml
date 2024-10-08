@@ -1,6 +1,6 @@
 name: flights_producer
 language: python
-buildContext: ./services/flights_producer
+buildContext: .
 variables:
   - name: KAFKA_TOPIC_NAME
     inputType: OutputTopic
@@ -23,9 +23,9 @@ variables:
     defaultValue: 1
     required: false
 files:
-  - ./airlines.csv
-  - ./airports.csv
-  - ./FAA_aircraft_characteristics_database.xlsx
+  - airlines.csv
+  - airports.csv
+  - FAA_aircraft_characteristics_database.xlsx
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
