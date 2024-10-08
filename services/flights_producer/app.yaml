@@ -11,6 +11,11 @@ variables:
     description: whether we are in live or historical mode
     defaultValue: live
     required: true
+  - name: AVIATION_EDGE_API_KEY
+    inputType: Secret
+    description: ''
+    defaultValue: AVIATION_EDGE_API_KEY
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
