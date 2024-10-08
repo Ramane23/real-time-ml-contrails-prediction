@@ -1,16 +1,5 @@
 name: flights_producer
 language: python
-variables:
-  - name: KAFKA_TOPIC_NAME
-    inputType: OutputTopic
-    description: The Kafka topic where we save the retrieved flights data from the AviationEdge API
-    defaultValue: live_flights
-    required: true
-  - name: LIVE_OR_HISTORICAL
-    inputType: FreeText
-    description: Whether to fetch live or historical data (for training purposes)
-    defaultValue: live
-    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
