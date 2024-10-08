@@ -1,6 +1,11 @@
 name: flights_producer
 language: python
-variables: []
+variables:
+  - name: KAFKA_TOPIC_NAME
+    inputType: OutputTopic
+    description: kafka topic to produce live flights data from AviationEdge API
+    defaultValue: live_flights
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
