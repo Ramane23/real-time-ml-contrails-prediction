@@ -23,9 +23,9 @@ variables:
     defaultValue: 1
     required: false
 files:
-  - airlines.csv
-  - airports.csv
-  - FAA_aircraft_characteristics_database.xlsx
+  - ./airlines.csv
+  - ./airports.csv
+  - ./FAA_aircraft_characteristics_database.xlsx
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
