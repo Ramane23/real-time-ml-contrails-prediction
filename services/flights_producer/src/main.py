@@ -11,7 +11,7 @@ from src.aviation_edge_api.flight import Flight
 
 
 def produce_flights(
-    kafka_broker_address: str,
+    kafka_broker_address: Optional[str],
     kafka_topic_name: str,
     live_or_historical: str,
 ) -> None:
