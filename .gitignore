@@ -197,3 +197,7 @@ ca.cert
 **/.sh
 .venv/
 certificates/
+
+.env
+.venv/
+certificates/
