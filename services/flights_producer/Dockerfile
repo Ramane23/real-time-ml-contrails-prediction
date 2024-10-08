@@ -1,6 +1,7 @@
+# Use a lightweight Python image
 FROM python:3.10.3-slim-buster
 
-# Install gcc, python3-dev, and other necessary packages
+# Install necessary packages
 RUN apt-get update && apt-get install -y \
     gcc wget build-essential \
     python3-dev libssl-dev libffi-dev \
@@ -15,7 +16,7 @@ RUN pip install poetry==1.8.2
 # Set the working directory inside the container
 WORKDIR /app
 
-# add /app/src to PYTHONPATH
+# Add /app/src to PYTHONPATH
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
 
 # Copy the pyproject.toml and poetry.lock files into the container
@@ -24,7 +25,10 @@ COPY pyproject.toml poetry.lock /app/
 # Install Python dependencies from the pyproject.toml file
 RUN poetry install
 
-# Copy all the source code into the container
+# Explicitly copy CSV and Excel files to the container
+COPY airports.csv airlines.csv FAA_aircraft_characteristics_database.xlsx /app/
+
+# Copy all source code into the container
 COPY . /app
 
 # Command to run your application
