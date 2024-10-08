@@ -1,5 +1,6 @@
 name: flights_producer
 language: python
+buildContext: ./services/flights_producer
 variables:
   - name: KAFKA_TOPIC_NAME
     inputType: OutputTopic
