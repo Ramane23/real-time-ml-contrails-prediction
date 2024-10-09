@@ -6,6 +6,11 @@ variables:
     description: the kafka topic from which we will retrieve th enriched flights data
     defaultValue: live_flights_with_weather
     required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: the consumer group to read the enrichedd live flights data
+    defaultValue: live_flights_with_weather_consumer
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
