@@ -11,6 +11,11 @@ variables:
     description: consumer group to get primary keys
     defaultValue: live_flights_with_weather_consumer_primary_keys
     required: true
+  - name: LIVE_OR_HISTORICAL
+    inputType: FreeText
+    description: always in live mode here because primary keys are only required for reading from the online feature store
+    defaultValue: live
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
