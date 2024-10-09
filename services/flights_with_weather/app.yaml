@@ -26,6 +26,6 @@ variables:
     description: ''
     defaultValue: METEOMATICS_PASSWORD
     required: true
-dockerfile: dockerfile
+dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
