@@ -25,10 +25,6 @@ COPY pyproject.toml poetry.lock /app/
 # Install Python dependencies from the pyproject.toml file
 RUN poetry install
 
-# Explicitly copy CSV and Excel files to the container
-# Copy the required CSV and Excel files to the container
-#COPY airports.csv airlines.csv FAA_aircraft_characteristics_database.xlsx /app/
-
 # Copy all source code into the container
 COPY . /app
 
