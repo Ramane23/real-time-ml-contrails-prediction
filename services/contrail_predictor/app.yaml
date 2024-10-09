@@ -46,6 +46,11 @@ variables:
     description: hopsworks feature view version
     defaultValue: 1
     required: true
+  - name: LAST_N_MINUTES
+    inputType: FreeText
+    description: the window of seconds for which we want to retrieve live data from the online feature group
+    defaultValue: 60
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
