@@ -3,7 +3,7 @@ language: python
 variables:
   - name: KAFKA_TOPIC_NAME
     inputType: InputTopic
-    description: ''
+    description: the kafka topic from which we will retrieve th enriched flights data
     defaultValue: live_flights_with_weather
     required: true
 dockerfile: Dockerfile
