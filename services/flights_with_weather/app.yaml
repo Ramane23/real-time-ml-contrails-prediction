@@ -11,6 +11,11 @@ variables:
     description: the consumer group to read live flights data
     defaultValue: live_flights_consumer
     required: true
+  - name: KAFKA_OUTPUT_TOPIC_NAME
+    inputType: OutputTopic
+    description: the new kafka topic where we will produce the enriched flights data (with weather data)
+    defaultValue: live_flights_with_weather
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
