@@ -1,0 +1,6 @@
+name: flights_with_weather
+language: python
+variables: []
+dockerfile: dockerfile
+runEntryPoint: src/main.py
+defaultFile: src/main.py

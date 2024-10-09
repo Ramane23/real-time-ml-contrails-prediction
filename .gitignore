@@ -202,3 +202,7 @@ certificates/
 .env
 .venv/
 certificates/
+
+.env
+.venv/
+certificates/
