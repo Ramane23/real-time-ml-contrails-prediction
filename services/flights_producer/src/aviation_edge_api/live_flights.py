@@ -118,13 +118,10 @@ class LiveFlights:
             #breakpoint()
             # Convert the response to a list of dictionaries
             data = data.json()
-            logger.debug(f"the retrieved data is of type {type(data)}")
-            logger.debug(f"the retrieved data is {data}")
             if data != {'error': 'No Record Found', 'success': False}:
                 # Refactor the flights to keep only relevant data and convert to Flight objects
                 response = []
                 for flight_data in data:
-                    logger.debug(f"flight_data: {flight_data}")
                     flight = {
                         "current_flight_time": flight_data["system"]["updated"],
                         "departure_airport_icao": flight_data["departure"]["icaoCode"],
