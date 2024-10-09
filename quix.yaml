@@ -64,35 +64,6 @@ deployments:
         description: the number of days to fetch flights data for whenever we are in historical mode
         required: false
         value: 1
-  - name: flights_producer 3
-    application: services/flights_producer
-    version: latest
-    deploymentType: Service
-    resources:
-      cpu: 200
-      memory: 500
-      replicas: 1
-    variables:
-      - name: KAFKA_TOPIC_NAME
-        inputType: OutputTopic
-        description: kafka topic to produce live flights data from AviationEdge API
-        required: true
-        value: live_flights
-      - name: LIVE_OR_HISTORICAL
-        inputType: FreeText
-        description: whether we are in live or historical mode
-        required: true
-        value: live
-      - name: AVIATION_EDGE_API_KEY
-        inputType: Secret
-        description: ''
-        required: true
-        secretKey: AVIATION_EDGE_API_KEY
-      - name: days
-        inputType: FreeText
-        description: the number of days to fetch flights data for whenever we are in historical mode
-        required: false
-        value: 1
   - name: flights_producer 4
     application: services/flights_producer
     version: latest
