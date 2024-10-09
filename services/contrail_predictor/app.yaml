@@ -51,6 +51,11 @@ variables:
     description: the window of seconds for which we want to retrieve live data from the online feature group
     defaultValue: 60
     required: true
+  - name: COMET_ML_API_KEY
+    inputType: Secret
+    description: ''
+    defaultValue: COMET_ML_API_KEY
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
