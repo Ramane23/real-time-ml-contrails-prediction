@@ -2,7 +2,7 @@ name: contrail_predictor
 language: python
 variables:
   - name: KAFKA_TOPIC_NAME
-    inputType: InputTopic
+    inputType: FreeText
     description: we need to read from the live fligts weather data in orer to retrieve the primary keys of the flights
     defaultValue: live_flights_with_weather
     required: true
