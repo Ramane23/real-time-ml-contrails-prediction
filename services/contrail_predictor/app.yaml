@@ -56,6 +56,11 @@ variables:
     description: ''
     defaultValue: COMET_ML_API_KEY
     required: true
+  - name: COMET_ML_PROJECT_NAME
+    inputType: Secret
+    description: ''
+    defaultValue: COMET_ML_PROJECT_NAME
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
