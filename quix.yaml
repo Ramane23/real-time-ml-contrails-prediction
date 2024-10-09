@@ -143,6 +143,65 @@ deployments:
         description: ''
         required: true
         secretKey: COMET_ML_WORKSPACE
+  - name: flights_to_feature_store
+    application: services/flights_to_feature_store
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_TOPIC_NAME
+        inputType: InputTopic
+        description: the kafka topic from which we will retrieve th enriched flights data
+        required: true
+        value: live_flights_with_weather
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: the consumer group to read the enrichedd live flights data
+        required: true
+        value: live_flights_with_weather_consumer
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: whether or not we are running on live or historical mode (for training purposes)
+        required: true
+        value: live
+      - name: HOPSWORKS_API_KEY
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_API_KEY
+      - name: HOPSWORKS_PROJECT_NAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_PROJECT_NAME
+      - name: FEATURE_GROUP_NAME
+        inputType: FreeText
+        description: the hopsworks feature group where the live data will be stored
+        required: true
+        value: live_flights_tracking_with_weather_data
+      - name: FEATURE_GROUP_VERSION
+        inputType: FreeText
+        description: the version of the feature group
+        required: true
+        value: 1
+      - name: FEATURE_VIEW_NAME
+        inputType: FreeText
+        description: the feature view to read data from the hopsworks feature store
+        required: true
+        value: live_flights_tracking_with_weather_view
+      - name: FEATURE_VIEW_VERSION
+        inputType: FreeText
+        description: the version of the feature view
+        required: true
+        value: 1
+      - name: BUFFER_SIZE
+        inputType: FreeText
+        description: the size of the batch of flights data to push to the feature store
+        required: true
+        value: 20
 
 # This section describes the Topics of the data pipeline
 topics:
