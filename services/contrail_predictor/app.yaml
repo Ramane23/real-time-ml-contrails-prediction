@@ -6,6 +6,11 @@ variables:
     description: we need to read from the live fligts weather data in orer to retrieve the primary keys of the flights
     defaultValue: live_flights_with_weather
     required: true
+  - name: KAFKA_CONSUMER_GROUP
+    inputType: FreeText
+    description: consumer group to get primary keys
+    defaultValue: live_flights_with_weather_consumer_primary_keys
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
