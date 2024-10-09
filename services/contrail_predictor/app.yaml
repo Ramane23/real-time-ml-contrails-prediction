@@ -1,6 +1,11 @@
 name: contrail_predictor
 language: python
-variables: []
+variables:
+  - name: KAFKA_TOPIC_NAME
+    inputType: InputTopic
+    description: we need to read from the live fligts weather data in orer to retrieve the primary keys of the flights
+    defaultValue: live_flights_with_weather
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
