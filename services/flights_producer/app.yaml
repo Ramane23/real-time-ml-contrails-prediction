@@ -1,6 +1,5 @@
 name: flights_producer
 language: python
-buildContext: .
 variables:
   - name: KAFKA_TOPIC_NAME
     inputType: OutputTopic
@@ -11,11 +10,6 @@ variables:
     inputType: FreeText
     description: whether we are in live or historical mode
     defaultValue: live
-    required: true
-  - name: AVIATION_EDGE_API_KEY
-    inputType: Secret
-    description: ''
-    defaultValue: AVIATION_EDGE_API_KEY
     required: true
   - name: days
     inputType: FreeText
