@@ -36,6 +36,11 @@ variables:
     description: hopsworks feature group version
     defaultValue: 1
     required: true
+  - name: FEATURE_VIEW_NAME
+    inputType: FreeText
+    description: hopsworks feature view for data reading
+    defaultValue: live_flights_tracking_with_weather_view
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
