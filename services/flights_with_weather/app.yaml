@@ -16,6 +16,11 @@ variables:
     description: the new kafka topic where we will produce the enriched flights data (with weather data)
     defaultValue: live_flights_with_weather
     required: true
+  - name: METEOMATICS_USERNAME
+    inputType: Secret
+    description: ''
+    defaultValue: METEOMATICS_USERNAME
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
