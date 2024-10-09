@@ -22,10 +22,6 @@ variables:
     description: the number of days to fetch flights data for whenever we are in historical mode
     defaultValue: 1
     required: false
-#files:
-  #- airlines.csv
-  #- airports.csv
-  #- FAA_aircraft_characteristics_database.xlsx
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
