@@ -119,6 +119,7 @@ class LiveFlights:
             # Convert the response to a list of dictionaries
             data = data.json()
             logger.debug(f"the retrieved data is of type {type(data)}")
+            logger.debug(f"the retrieved data is {data}")
             if data != {'error': 'No Record Found', 'success': False}:
                 # Refactor the flights to keep only relevant data and convert to Flight objects
                 response = []
