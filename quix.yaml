@@ -35,6 +35,40 @@ deployments:
         description: ''
         required: true
         secretKey: AVIATION_EDGE_API_KEY
+  - name: flights_with_weather
+    application: services/flights_with_weather
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    variables:
+      - name: KAFKA_INPUT_TOPIC_NAME
+        inputType: InputTopic
+        description: the kafka topic from where we will read flights data
+        required: true
+        value: live_flights
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: the consumer group to read live flights data
+        required: true
+        value: live_flights_consumer
+      - name: KAFKA_OUTPUT_TOPIC_NAME
+        inputType: OutputTopic
+        description: the new kafka topic where we will produce the enriched flights data (with weather data)
+        required: true
+        value: live_flights_with_weather
+      - name: METEOMATICS_USERNAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: METEOMATICS_USERNAME
+      - name: METEOMATICS_PASSWORD
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: METEOMATICS_PASSWORD
 
 # This section describes the Topics of the data pipeline
 topics:
