@@ -1,0 +1,5 @@
+name: contrail_predictor
+language: python
+variables: []
+dockerfile: Dockerfile
+runEntryPoint: src/restapi.py
