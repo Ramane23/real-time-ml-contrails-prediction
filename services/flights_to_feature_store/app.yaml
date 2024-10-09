@@ -46,6 +46,11 @@ variables:
     description: the version of the feature view
     defaultValue: 1
     required: true
+  - name: BUFFER_SIZE
+    inputType: FreeText
+    description: the size of the batch of flights data to push to the feature store
+    defaultValue: 20
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
