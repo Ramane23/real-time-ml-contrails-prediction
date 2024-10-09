@@ -16,6 +16,11 @@ variables:
     description: whether or not we are running on live or historical mode (for training purposes)
     defaultValue: live
     required: true
+  - name: HOPSWORKS_API_KEY
+    inputType: Secret
+    description: ''
+    defaultValue: HOPSWORKS_API_KEY
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
