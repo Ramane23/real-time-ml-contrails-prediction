@@ -5,7 +5,7 @@ variables:
     inputType: InputTopic
     description: ''
     defaultValue: live_flights_with_weather
-    required: false
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
