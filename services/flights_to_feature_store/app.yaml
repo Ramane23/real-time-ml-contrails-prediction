@@ -1,0 +1,6 @@
+name: flights_to_feature_store
+language: python
+variables: []
+dockerfile: Dockerfile
+runEntryPoint: src/main.py
+defaultFile: src/main.py
