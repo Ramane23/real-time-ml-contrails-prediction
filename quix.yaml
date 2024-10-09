@@ -39,3 +39,8 @@ deployments:
 # This section describes the Topics of the data pipeline
 topics:
   - name: live_flights
+  - name: live_flights_with_weather
+    configuration:
+      replicationFactor: 2
+      retentionInMinutes: 1440
+      retentionInBytes: 52428800
