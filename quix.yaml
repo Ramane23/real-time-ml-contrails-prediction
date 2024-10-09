@@ -78,3 +78,8 @@ topics:
       replicationFactor: 2
       retentionInMinutes: 1440
       retentionInBytes: 52428800
+  - name: historical_flights_with_weather
+    configuration:
+      replicationFactor: 2
+      retentionInMinutes: 1440
+      retentionInBytes: 52428800
