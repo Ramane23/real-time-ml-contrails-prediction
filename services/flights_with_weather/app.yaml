@@ -1,6 +1,11 @@
 name: flights_with_weather
 language: python
-variables: []
+variables:
+  - name: KAFKA_INPUT_TOPIC_NAME
+    inputType: InputTopic
+    description: the kafka topic from where we will read flights data
+    defaultValue: live_flights
+    required: true
 dockerfile: dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
