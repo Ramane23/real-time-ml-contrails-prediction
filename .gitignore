@@ -197,8 +197,8 @@ ca.cert
 **/.sh
 .venv/
 certificates/
-flights_data_preprocessed.csv
-flights_data_with_features.csv
+**/flights_data_preprocessed.csv
+**/flights_data_with_features.csv
 .env
 .venv/
 certificates/
