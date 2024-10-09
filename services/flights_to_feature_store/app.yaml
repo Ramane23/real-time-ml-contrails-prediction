@@ -11,6 +11,11 @@ variables:
     description: the consumer group to read the enrichedd live flights data
     defaultValue: live_flights_with_weather_consumer
     required: true
+  - name: LIVE_OR_HISTORICAL
+    inputType: FreeText
+    description: whether or not we are running on live or historical mode (for training purposes)
+    defaultValue: live
+    required: true
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
