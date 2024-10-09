@@ -1,6 +1,11 @@
 name: flights_to_feature_store
 language: python
-variables: []
+variables:
+  - name: KAFKA_TOPIC_NAME
+    inputType: InputTopic
+    description: ''
+    defaultValue: live_flights_with_weather
+    required: false
 dockerfile: Dockerfile
 runEntryPoint: src/main.py
 defaultFile: src/main.py
