@@ -23,7 +23,7 @@ class Config(BaseSettings):
     
     #to read from the kafka topic
     kafka_topic_name: str
-    kafka_broker_address: str
+    kafka_broker_address: Optional[str] = None
     kafka_consumer_group: str
     live_or_historical : str
     last_n_minutes: Optional[int] = None
