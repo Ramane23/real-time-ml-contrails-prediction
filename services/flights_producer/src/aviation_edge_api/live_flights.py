@@ -123,6 +123,7 @@ class LiveFlights:
                 # Refactor the flights to keep only relevant data and convert to Flight objects
                 response = []
                 for flight_data in data:
+                    logger.debug(f"flight_data: {flight_data}")
                     flight = {
                         "current_flight_time": flight_data["system"]["updated"],
                         "departure_airport_icao": flight_data["departure"]["icaoCode"],
