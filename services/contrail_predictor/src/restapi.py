@@ -45,4 +45,4 @@ if __name__ == "__main__":
     
     # Running the FastAPI app with uvicorn
     #uvicorn aims to be a lightning-fast ASGI server, implementing asynchronous programming in Python
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=80, reload=True)

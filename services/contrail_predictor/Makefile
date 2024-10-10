@@ -29,7 +29,7 @@ request-docker:
 
 # Send a request to the production API (adjust the URL as needed)
 request-production:
-	curl -X POST https://price-predictor-plabartabajo-realtimemlsystemcohort-e9f528c7.deployments.quix.io/predict -H "Content-Type: application/json" -d '{"route": "Frankfurt - Berlin"}'
+	curl -X POST https://contrail-predictor-contactsouley-realtimemlcontrailspr-4eda2dd1.deployments.quix.io/predict -H "Content-Type: application/json" -d '{"route": "Frankfurt - Berlin"}'
 
 # Send an invalid prediction request to test error handling
 invalid-request:
