@@ -77,6 +77,9 @@ deployments:
       cpu: 200
       memory: 500
       replicas: 1
+    publicAccess:
+      enabled: true
+      urlPrefix: contrail-predictor
     variables:
       - name: KAFKA_TOPIC_NAME
         inputType: InputTopic
