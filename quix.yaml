@@ -128,6 +128,83 @@ deployments:
         description: the size of the batch of flights data to push to the feature store
         required: true
         value: 20
+  - name: contrail_predictor
+    application: services/contrail_predictor
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 500
+      replicas: 1
+    publicAccess:
+      enabled: true
+      urlPrefix: contrail-predictor
+    variables:
+      - name: KAFKA_TOPIC_NAME
+        inputType: InputTopic
+        description: we need to read from the live fligts weather data in orer to retrieve the primary keys of the flights
+        required: true
+        value: live_flights_with_weather
+      - name: KAFKA_CONSUMER_GROUP
+        inputType: FreeText
+        description: consumer group to get primary keys
+        required: true
+        value: live_flights_with_weather_consumer_primary_keys
+      - name: LIVE_OR_HISTORICAL
+        inputType: FreeText
+        description: always in live mode here because primary keys are only required for reading from the online feature store
+        required: true
+        value: live
+      - name: HOPSWORKS_API_KEY
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_API_KEY
+      - name: HOPSWORKS_PROJECT_NAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: HOPSWORKS_PROJECT_NAME
+      - name: FEATURE_GROUP_NAME
+        inputType: FreeText
+        description: hopsworks feature group
+        required: true
+        value: live_flights_tracking_with_weather_data
+      - name: FEATURE_GROUP_VERSION
+        inputType: FreeText
+        description: hopsworks feature group version
+        required: true
+        value: 1
+      - name: FEATURE_VIEW_NAME
+        inputType: FreeText
+        description: hopsworks feature view for data reading
+        required: true
+        value: live_flights_tracking_with_weather_view
+      - name: FEATURE_VIEW_VERSION
+        inputType: FreeText
+        description: hopsworks feature view version
+        required: true
+        value: 1
+      - name: LAST_N_MINUTES
+        inputType: FreeText
+        description: the window of seconds for which we want to retrieve live data from the online feature group
+        required: true
+        value: 60
+      - name: COMET_ML_API_KEY
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: COMET_ML_API_KEY
+      - name: COMET_ML_PROJECT_NAME
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: COMET_ML_PROJECT_NAME
+      - name: COMET_ML_WORKSPACE
+        inputType: Secret
+        description: ''
+        required: true
+        secretKey: COMET_ML_WORKSPACE
 
 # This section describes the Topics of the data pipeline
 topics:
