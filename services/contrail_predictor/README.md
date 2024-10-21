@@ -1,0 +1,3 @@
+The goal of this service is to retrieve historical flights data enriched with weather in order to train an XGBoost and a LightGBM classifier. The two models are then compared based on their accuracy and the best one is then pushed to the comet ML model registry.
+
+The other goal an then the end of the service is to load the trained model from the registry, fetch real time flights data from the hopsworks online feature store and then make predictions upon the requests of end users.

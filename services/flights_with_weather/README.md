@@ -1,0 +1,1 @@
+The goal of this service is to consume flights data from the redpanda topic, get the weather data for those flights data andd then produce them to another Redpanda topic.

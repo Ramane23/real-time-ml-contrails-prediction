@@ -1,0 +1,1 @@
+The goal of this service is to create an streamlit app to visualize the real time flights data from the hopsworks online feaure store.

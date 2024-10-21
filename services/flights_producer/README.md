@@ -1,0 +1,1 @@
+The goal of this service is to fetch flights data from the Aviation Edge API and produce them to a Redpanda Topic.

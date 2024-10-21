@@ -1,0 +1,1 @@
+The goal of this service is to push flights data enriched with weather data to either the online or the offline store of the hopsworks feature store.

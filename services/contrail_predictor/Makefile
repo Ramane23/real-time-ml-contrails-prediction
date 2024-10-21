@@ -11,7 +11,7 @@ predict:
 # Commands for running the FastAPI app with Uvicorn
 restapi:
 	@echo "Running with setup_live_config.sh"
-	. ./setup_live_config.sh && poetry run uvicorn restapi:app --host 0.0.0.0 --port 8000 --reload
+	. ./setup_live_config.sh && poetry run uvicorn restapi:app --host 0.0.0.0 --port 5005 --reload
 
 # Health check for the REST API
 check-health:
