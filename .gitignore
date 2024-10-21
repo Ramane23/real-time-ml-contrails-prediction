@@ -203,6 +203,7 @@ certificates/
 .venv/
 certificates/
 
+.sh
 .env
 .venv/
 certificates/
