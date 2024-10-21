@@ -7,7 +7,7 @@ This project aims to predict contrail formation in real-time for commercial flig
 
 **Data Integration:** Combines real-time flight tracking data from the Aviation Edge API and high-resolution weather data from the Meteomatics API.
 
-**Feature Engineering:** Uses the OpenAP aircraft performance model to generate key aircraft performance features and the CoCiP (Contrail Cirrus Prediction) model from the PyContrails library to compute contrail formation features.
+**Feature Engineering:** Uses the OpenAP aircraft performance model to generate key aircraft performance features.
 
 **Real-Time Inference:** Predicts contrail formation probabilities for ongoing flights, providing actionable insights for minimizing contrail formation.
 
