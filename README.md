@@ -63,6 +63,10 @@ Set up your API keys and other environment variables in the .sh file as needed.
 # Run the Streamlit dashboard:
 streamlit run services/features_dashboard/src/frontend.py
 
+# System Architecture:
+![image](https://github.com/user-attachments/assets/af6b619c-0e2c-44de-a132-8fc07d9f10d0)
+
+
 **How to Contribute ?**
 
 Fork the repository.
