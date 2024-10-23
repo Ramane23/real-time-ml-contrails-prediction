@@ -57,8 +57,6 @@ cd into the contrail_predictor service and run:
     $ make predict
     ``` 
 
-## See it in action
-
 
 
 **Contact**
