@@ -55,7 +55,6 @@ cd into the contrail_predictor service and run:
     $ make restapi
     $ make check-health
     $ make predict
-    
     ``` 
 
 ## See it in action
