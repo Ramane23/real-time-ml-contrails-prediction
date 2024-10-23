@@ -39,26 +39,23 @@ and create an isolated virtual environmnet for development purposes.
     
     ```
 ## How to run the streamlit dashboard?
-cd into the features_dahboard service and run
+cd into the features_dahboard service and run:
 
     ```
     $ make run-dev
     ```
 ## How to run the training script locally?
-cd into the contrail_predictor service and run
+cd into the contrail_predictor service and run:
     ```
     $ make train
     ``` 
 ## How to run the FastAPI and make inference locally?
-cd into the contrail_predictor service and run
+cd into the contrail_predictor service and run:
     ```
     $ make restapi
-    ``` 
-    ```
     $ make check-health
-    ``` 
-    ```
     $ make predict
+    
     ``` 
 
 ## See it in action
