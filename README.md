@@ -8,7 +8,7 @@
 I am a Machine Learning and Aeronautical Engineer passionate about building end-to-end data-driven solutions for real-time aviation and sustainability challenges. With experience in deploying production-grade models, I aim to leverage AI to create a sustainable impact.
 
 - 🔭 I’m currently working on a real-time contrail prediction system.
-- 🌱 I’m learning advanced deep learning techniques.
+- 🌱 I enjoy building End-to-End Machine Learning Systems (batch and real-time).
 - 💬 Ask me about anything related to machine learning, MLOps, or data engineering.
 
 # System Architecture:
