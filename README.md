@@ -15,12 +15,12 @@ I am a Machine Learning and Aeronautical Engineer passionate about building end-
 ![image](https://github.com/user-attachments/assets/af6b619c-0e2c-44de-a132-8fc07d9f10d0)
 
 #### Table of contents
-* [Project Overview 🎯](#project-overview)
-* [How to run the features_pipeline locally with docker-compose 🏃](#how-to-run-the-features-pipeline-locally-with-docker-compose?)
-* [How to run the streamlit dashboard ? 🏃](#how-to-run-the-streamlit-dashboard?)
-* [How to run the training script locally? 🚀](#how-to-run-the-training-script-locally?)
-* [How to run the FastAPI for inference locally? 🔎](#how-to-run-the-FastAPI-for-inference-locally?)
-* [See it in action 🎬](#see-it-in-action)
+* [Project Overview ](#project-overview)
+* [How to run the features_pipeline locally with docker-compose ](#how-to-run-the-features-pipeline-locally-with-docker-compose?)
+* [How to run the streamlit dashboard ? ](#how-to-run-the-streamlit-dashboard?)
+* [How to run the training script locally? ](#how-to-run-the-training-script-locally?)
+* [How to run the FastAPI for inference locally? ](#how-to-run-the-FastAPI-for-inference-locally?)
+
 
 ## Project Overview
 This project aims to predict contrail formation in real-time for commercial flights using machine learning models and environmental data. Contrails are the condensation trails left behind by aircraft that can contribute significantly to global warming. By accurately predicting when and where contrails form, this project helps airlines reduce their environmental impact through optimized flight routes and operational strategies.
