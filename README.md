@@ -16,9 +16,13 @@ I am a Machine Learning and Aeronautical Engineer passionate about building end-
 
 #### Table of contents
 * [Project Overview ](#project-overview)
+* 
 * [How to run the features_pipeline locally with docker-compose ](#how-to-run-the-features-pipeline-locally-with-docker-compose?)
+* 
 * [How to run the streamlit dashboard ? ](#how-to-run-the-streamlit-dashboard?)
+* 
 * [How to run the training script locally? ](#how-to-run-the-training-script-locally?)
+* 
 * [How to run the FastAPI for inference locally? ](#how-to-run-the-FastAPI-for-inference-locally?)
 
 
